@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.egg-info/
+dist/
+.venv/
+.cl*/*
+
+# Tools
+.python-version
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
