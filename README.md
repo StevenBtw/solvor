@@ -108,7 +108,7 @@ result = m.solve()
 <summary><strong>Metaheuristics</strong></summary>
 
 ### anneal
-Simulated annealing - accepts worse solutions probabilistically.
+Simulated annealing, accepts worse solutions probabilistically.
 
 ```python
 result = anneal(
