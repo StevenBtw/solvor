@@ -10,7 +10,7 @@ Solvor your optimization needs..
 | Category | Solvers | Use Case |
 |----------|---------|----------|
 | **Linear/Integer** | `solve_lp`, `solve_milp` | Resource allocation, scheduling |
-| **Constraint** | `solve_sat`| Sudoku, configuration, puzzles |
+| **Constraint** | `solve_sat` | Sudoku, configuration, puzzles |
 | **Local Search** | `anneal`, `tabu_search` | TSP, combinatorial optimization |
 | **Population** | `evolve` | When you want nature to do the work |
 | **Continuous** | `gradient_descent`, `momentum`, `adam` | ML, curve fitting |
@@ -109,7 +109,7 @@ result = m.solve()
 <summary><strong>Metaheuristics</strong></summary>
 
 ### anneal
-Black-box optimization that handles local optima well. Fast to prototype when you have an objective and can generate neighbors.
+Simulated annealing, accepts worse solutions probabilistically.
 
 ```python
 result = anneal(
