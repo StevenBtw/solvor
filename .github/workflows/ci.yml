@@ -19,7 +19,7 @@ jobs:
         run: uv sync --extra dev
 
       - name: Run linter
-        run: uv run ruff check src/
+        run: uv run ruff check solvor/
 
       - name: Run tests
         run: uv run pytest tests/ -v
