@@ -24,6 +24,7 @@ or when one worker handles multiple tasks / one task needs multiple workers
 
 from collections.abc import Sequence
 from math import inf
+
 from solvor.types import Result
 
 __all__ = ["hungarian"]
@@ -55,54 +56,54 @@ def hungarian(
                 else:
                     matrix[i][j] = 0.0
 
-    u = [0.0] * (n + 1)
-    v = [0.0] * (n + 1)
-    p = [0] * (n + 1)
-    way = [0] * (n + 1)
+    row_potential = [0.0] * (n + 1)
+    col_potential = [0.0] * (n + 1)
+    col_match = [0] * (n + 1)
+    augment_path = [0] * (n + 1)
 
     iterations = 0
 
     for i in range(1, n + 1):
-        p[0] = i
-        j0 = 0
-        minv = [inf] * (n + 1)
+        col_match[0] = i
+        current_col = 0
+        min_slack = [inf] * (n + 1)
         used = [False] * (n + 1)
 
-        while p[j0] != 0:
+        while col_match[current_col] != 0:
             iterations += 1
-            used[j0] = True
-            i0 = p[j0]
+            used[current_col] = True
+            matched_row = col_match[current_col]
             delta = inf
-            j1 = 0
+            next_col = 0
 
             for j in range(1, n + 1):
                 if not used[j]:
-                    cur = matrix[i0 - 1][j - 1] - u[i0] - v[j]
-                    if cur < minv[j]:
-                        minv[j] = cur
-                        way[j] = j0
-                    if minv[j] < delta:
-                        delta = minv[j]
-                        j1 = j
+                    reduced_cost = matrix[matched_row - 1][j - 1] - row_potential[matched_row] - col_potential[j]
+                    if reduced_cost < min_slack[j]:
+                        min_slack[j] = reduced_cost
+                        augment_path[j] = current_col
+                    if min_slack[j] < delta:
+                        delta = min_slack[j]
+                        next_col = j
 
             for j in range(n + 1):
                 if used[j]:
-                    u[p[j]] += delta
-                    v[j] -= delta
+                    row_potential[col_match[j]] += delta
+                    col_potential[j] -= delta
                 else:
-                    minv[j] -= delta
+                    min_slack[j] -= delta
 
-            j0 = j1
+            current_col = next_col
 
-        while j0 != 0:
-            j1 = way[j0]
-            p[j0] = p[j1]
-            j0 = j1
+        while current_col != 0:
+            prev_col = augment_path[current_col]
+            col_match[current_col] = col_match[prev_col]
+            current_col = prev_col
 
     assignment = [-1] * n_rows
     for j in range(1, n + 1):
-        if p[j] != 0 and p[j] <= n_rows and j <= n_cols:
-            assignment[p[j] - 1] = j - 1
+        if col_match[j] != 0 and col_match[j] <= n_rows and j <= n_cols:
+            assignment[col_match[j] - 1] = j - 1
 
     total_cost = 0.0
     for i in range(n_rows):

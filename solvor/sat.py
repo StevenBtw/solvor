@@ -27,7 +27,8 @@ are more natural than booleans (use CP, which handles the encoding for you).
 
 from collections import defaultdict
 from collections.abc import Sequence
-from solvor.types import Status, Result
+
+from solvor.types import Result, Status
 
 __all__ = ["solve_sat"]
 
@@ -112,13 +113,13 @@ def solve_sat(
             i = 0
             watches = watch[false_lit]
             while i < len(watches):
-                ci = watches[i]
-                clause = clauses[ci] if ci < len(clauses) else learned[ci - len(clauses)]
+                clause_idx = watches[i]
+                clause = clauses[clause_idx] if clause_idx < len(clauses) else learned[clause_idx - len(clauses)]
 
                 if len(clause) == 1:
                     if value(clause[0]) is False:
                         conflicts += 1
-                        return ci
+                        return clause_idx
                     i += 1
                     continue
 
@@ -135,7 +136,7 @@ def solve_sat(
                         if clause[0] != false_lit:
                             watches[i] = watches[-1]
                             watches.pop()
-                            watch[clause[0]].append(ci)
+                            watch[clause[0]].append(clause_idx)
                             found = True
                             break
                         else:
@@ -152,9 +153,9 @@ def solve_sat(
 
                 if value(clause[0]) is False:
                     conflicts += 1
-                    return ci
+                    return clause_idx
                 elif value(clause[0]) is None:
-                    assign(abs(clause[0]), clause[0] > 0, dec_level, ci)
+                    assign(abs(clause[0]), clause[0] > 0, dec_level, clause_idx)
                     queue.append(abs(clause[0]))
 
                 i += 1

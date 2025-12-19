@@ -20,8 +20,9 @@ With a good distance estimate, use astar.
 """
 
 from collections.abc import Callable, Iterable
-from heapq import heappush, heappop
-from solvor.types import Status, Result
+from heapq import heappop, heappush
+
+from solvor.types import Result, Status
 
 __all__ = ["dijkstra"]
 

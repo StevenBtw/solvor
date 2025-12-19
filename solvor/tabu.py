@@ -26,7 +26,9 @@ probabilistic (simpler setup), tabu is greedy with memory (more predictable).
 from collections import deque
 from collections.abc import Callable, Sequence
 from itertools import pairwise
-from solvor.types import Status, Result, Progress, ProgressCallback
+from random import Random
+
+from solvor.types import Progress, ProgressCallback, Result, Status
 
 __all__ = ["tabu_search", "solve_tsp"]
 
@@ -39,10 +41,12 @@ def tabu_search[T, M](
     cooldown: int = 10,
     max_iter: int = 1000,
     max_no_improve: int = 100,
+    seed: int | None = None,
     on_progress: ProgressCallback | None = None,
     progress_interval: int = 0,
 ) -> Result:
 
+    rng = Random(seed)
     sign = 1 if minimize else -1
     evals = 0
 
@@ -56,10 +60,11 @@ def tabu_search[T, M](
     tabu_list, tabu_set = deque(maxlen=cooldown), set()
 
     for iteration in range(1, max_iter + 1):
-        candidates = neighbors(solution)
+        candidates = list(neighbors(solution))
         if not candidates:
             break
 
+        rng.shuffle(candidates)
         best_move, best_neighbor, best_neighbor_obj = None, None, float('inf')
 
         for move, neighbor in candidates:
@@ -100,6 +105,7 @@ def solve_tsp(
     matrix: Sequence[Sequence[float]],
     *,
     minimize: bool = True,
+    seed: int | None = None,
     on_progress: ProgressCallback | None = None,
     progress_interval: int = 0,
     **kwargs,
@@ -134,4 +140,7 @@ def solve_tsp(
         tour.append(nearest)
         remaining.remove(nearest)
 
-    return tabu_search(tour, objective_fn, neighbors, minimize=minimize, on_progress=on_progress, progress_interval=progress_interval, **kwargs)
+    return tabu_search(
+        tour, objective_fn, neighbors, minimize=minimize, seed=seed,
+        on_progress=on_progress, progress_interval=progress_interval, **kwargs
+    )
