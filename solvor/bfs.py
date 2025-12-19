@@ -21,7 +21,8 @@ negative edges, use bellman_ford.
 
 from collections import deque
 from collections.abc import Callable, Iterable
-from solvor.types import Status, Result
+
+from solvor.types import Result, Status
 
 __all__ = ["bfs", "dfs"]
 

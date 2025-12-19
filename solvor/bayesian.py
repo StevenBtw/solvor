@@ -20,9 +20,10 @@ Optuna, they handle the edge cases and integrations this implementation doesn't.
 """
 
 from collections.abc import Callable, Sequence
-from math import sqrt, exp, pi, erf
+from math import erf, exp, pi, sqrt
 from random import Random
-from solvor.types import Status, Result
+
+from solvor.types import Result, Status
 
 __all__ = ["bayesian_opt"]
 
@@ -66,14 +67,14 @@ def bayesian_opt(
         if n == 0:
             return 0.0, 1.0
 
-        K = [[kernel(X[i], X[j]) + (noise if i == j else 0) for j in range(n)] for i in range(n)]
-        k_star = [kernel(x_new, X[i]) for i in range(n)]
+        kernel_matrix = [[kernel(X[i], X[j]) + (noise if i == j else 0) for j in range(n)] for i in range(n)]
+        cross_kernel = [kernel(x_new, X[i]) for i in range(n)]
 
-        K_inv_y = _solve_linear(K, Y)
-        K_inv_k = _solve_linear(K, k_star)
+        mean_weights = _solve_linear(kernel_matrix, Y)
+        var_weights = _solve_linear(kernel_matrix, cross_kernel)
 
-        mu = sum(k_star[i] * K_inv_y[i] for i in range(n))
-        var = kernel(x_new, x_new) - sum(k_star[i] * K_inv_k[i] for i in range(n))
+        mu = sum(cross_kernel[i] * mean_weights[i] for i in range(n))
+        var = kernel(x_new, x_new) - sum(cross_kernel[i] * var_weights[i] for i in range(n))
         var = max(var, 1e-10)
 
         return mu, sqrt(var)

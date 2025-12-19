@@ -18,11 +18,12 @@ Don't use this for: unknown goal location (use dijkstra), negative edges
 """
 
 from collections.abc import Callable, Iterable, Sequence
-from heapq import heappush, heappop
+from heapq import heappop, heappush
 from itertools import product
 from math import sqrt
 from typing import Literal
-from solvor.types import Status, Result
+
+from solvor.types import Result, Status
 
 __all__ = ["astar", "astar_grid"]
 

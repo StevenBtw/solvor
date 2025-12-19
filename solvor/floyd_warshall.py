@@ -19,7 +19,7 @@ For large graphs: just run dijkstra from each source, it's very parallelizable
 and usually faster in practice.
 """
 
-from solvor.types import Status, Result
+from solvor.types import Result, Status
 
 __all__ = ["floyd_warshall"]
 

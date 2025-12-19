@@ -21,6 +21,20 @@ jobs:
       - name: Run linter
         run: uv run ruff check solvor/
 
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+
+      - name: Run type checker
+        run: uv run mypy solvor/
+
   # Detect which solvers have changed
   changes:
     runs-on: ubuntu-latest
@@ -323,7 +337,7 @@ jobs:
       - run: uv sync --extra dev
       - run: uv run pytest tests/test_utils.py -v
 
-  # Full test suite on main branch or when test infrastructure changes
+  # Full test suite with coverage on main branch or when test infrastructure changes
   test-all:
     needs: changes
     if: ${{ github.ref == 'refs/heads/main' || needs.changes.outputs.tests == 'true' }}
@@ -332,4 +346,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v4
       - run: uv sync --extra dev
-      - run: uv run pytest tests/ -v
+      - name: Run tests with coverage
+        run: uv run pytest tests/ -v --cov=solvor --cov-report=term-missing --cov-fail-under=80

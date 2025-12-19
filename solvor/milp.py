@@ -26,15 +26,17 @@ If your problem is purely continuous (no integers), just use simplex (directly).
 """
 
 from collections.abc import Sequence
-from heapq import heappush, heappop
-from math import floor, ceil
+from heapq import heappop, heappush
+from math import ceil, floor
 from typing import NamedTuple
-from solvor.simplex import solve_lp, Status as LPStatus
-from solvor.types import Status, Result
+
+from solvor.simplex import Status as LPStatus
+from solvor.simplex import solve_lp
+from solvor.types import Result, Status
 
 __all__ = ["solve_milp"]
 
-# I deliberatly picked NamedTuple over dataclass for performance
+# I deliberately picked NamedTuple over dataclass for performance
 class Node(NamedTuple):
     bound: float
     lower: tuple[float, ...]
@@ -81,7 +83,7 @@ def solve_milp(
     tree = []
     counter = 0
     root_bound = sign * root_result.objective
-    heappush(tree, (root_bound, counter, Node(root_bound, list(lower), list(upper), 0)))
+    heappush(tree, (root_bound, counter, Node(root_bound, tuple(lower), tuple(upper), 0)))
     counter += 1
     nodes_explored = 0
 
@@ -120,12 +122,14 @@ def solve_milp(
 
         lower_left, upper_left = list(node.lower), list(node.upper)
         upper_left[frac_var] = floor(val)
-        heappush(tree, (child_bound, counter, Node(child_bound, lower_left, upper_left, node.depth + 1)))
+        left_node = Node(child_bound, tuple(lower_left), tuple(upper_left), node.depth + 1)
+        heappush(tree, (child_bound, counter, left_node))
         counter += 1
 
         lower_right, upper_right = list(node.lower), list(node.upper)
         lower_right[frac_var] = ceil(val)
-        heappush(tree, (child_bound, counter, Node(child_bound, lower_right, upper_right, node.depth + 1)))
+        right_node = Node(child_bound, tuple(lower_right), tuple(upper_right), node.depth + 1)
+        heappush(tree, (child_bound, counter, right_node))
         counter += 1
 
     if best_solution is None:

@@ -31,7 +31,8 @@ NetworkX is very extensive. This solver focuses on the flow problems.
 
 from collections import defaultdict, deque
 from collections.abc import Sequence
-from solvor.types import Status, Result
+
+from solvor.types import Result, Status
 
 __all__ = ["max_flow", "min_cost_flow", "solve_assignment"]
 
