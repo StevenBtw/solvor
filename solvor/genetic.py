@@ -34,7 +34,8 @@ from collections import namedtuple
 from collections.abc import Callable, Sequence
 from operator import attrgetter
 from random import Random
-from solvor.types import Status, Result, Progress, ProgressCallback
+
+from solvor.types import Progress, ProgressCallback, Result, Status
 
 __all__ = ["evolve"]
 

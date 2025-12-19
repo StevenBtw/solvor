@@ -23,7 +23,7 @@ Don't use this for: problems that aren't min-cost flow shaped (use solve_lp),
 or tiny problems where config overhead isn't worth it (use min_cost_flow).
 """
 
-from solvor.types import Status, Result
+from solvor.types import Result, Status
 
 __all__ = ["network_simplex"]
 
@@ -202,50 +202,50 @@ def network_simplex(
 
         if leaving != entering:
             if leaving_first:
-                u_out = first
-                while pred[u_out] != leaving:
-                    u_out = parent[u_out]
-                v_in = second
+                leaving_node = first
+                while pred[leaving_node] != leaving:
+                    leaving_node = parent[leaving_node]
+                new_parent = second
             else:
-                u_out = second
-                while pred[u_out] != leaving:
-                    u_out = parent[u_out]
-                v_in = first
+                leaving_node = second
+                while pred[leaving_node] != leaving:
+                    leaving_node = parent[leaving_node]
+                new_parent = first
 
-            old_rev = rev_thread[u_out]
-            old_last = u_out
-            node = thread[u_out]
-            while depth[node] > depth[u_out]:
-                old_last = node
+            prev_thread = rev_thread[leaving_node]
+            subtree_last = leaving_node
+            node = thread[leaving_node]
+            while depth[node] > depth[leaving_node]:
+                subtree_last = node
                 node = thread[node]
 
-            thread[old_rev] = thread[old_last]
-            rev_thread[thread[old_last]] = old_rev
+            thread[prev_thread] = thread[subtree_last]
+            rev_thread[thread[subtree_last]] = prev_thread
 
-            last_v = v_in
-            node = thread[v_in]
-            while node != v_in and depth[node] > depth[v_in]:
-                last_v = node
+            attach_point = new_parent
+            node = thread[new_parent]
+            while node != new_parent and depth[node] > depth[new_parent]:
+                attach_point = node
                 node = thread[node]
 
-            thread[old_last] = thread[last_v]
-            if thread[last_v] < total_nodes:
-                rev_thread[thread[last_v]] = old_last
-            thread[last_v] = u_out
-            rev_thread[u_out] = last_v
+            thread[subtree_last] = thread[attach_point]
+            if thread[attach_point] < total_nodes:
+                rev_thread[thread[attach_point]] = subtree_last
+            thread[attach_point] = leaving_node
+            rev_thread[leaving_node] = attach_point
 
-            parent[u_out] = v_in
-            pred[u_out] = entering
+            parent[leaving_node] = new_parent
+            pred[leaving_node] = entering
 
-            diff = depth[v_in] + 1 - depth[u_out]
-            node = u_out
+            diff = depth[new_parent] + 1 - depth[leaving_node]
+            node = leaving_node
             while True:
                 depth[node] += diff
                 node = thread[node]
-                if depth[node] <= depth[u_out] - diff or node == u_out:
+                if depth[node] <= depth[leaving_node] - diff or node == leaving_node:
                     break
 
-            node = u_out
+            node = leaving_node
             while True:
                 arc = pred[node]
                 if source[arc] == parent[node]:
@@ -253,7 +253,7 @@ def network_simplex(
                 else:
                     pi[node] = pi[parent[node]] + cost[arc]
                 node = thread[node]
-                if depth[node] <= depth[v_in] or node == u_out:
+                if depth[node] <= depth[new_parent] or node == leaving_node:
                     break
 
     for arc in range(m, total_arcs):

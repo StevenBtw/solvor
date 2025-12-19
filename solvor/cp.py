@@ -25,8 +25,10 @@ logic, z3 sits nicely between this CP approach and full MILP.
 """
 
 from itertools import combinations
-from solvor.sat import solve_sat, Status as SATStatus
-from solvor.types import Status, Result
+
+from solvor.sat import Status as SATStatus
+from solvor.sat import solve_sat
+from solvor.types import Result, Status
 
 __all__ = ["Model"]
 
@@ -185,18 +187,18 @@ class Model:
                     self._clauses.append([-v1.bool_vars[val1], v2.bool_vars[val2]])
             return
 
-        aux = self.int_var(variables[0].lb + variables[1].lb,
-                          variables[0].ub + variables[1].ub)
+        partial_sum = self.int_var(variables[0].lb + variables[1].lb,
+                                    variables[0].ub + variables[1].ub)
 
         for v1 in range(variables[0].lb, variables[0].ub + 1):
             for v2 in range(variables[1].lb, variables[1].ub + 1):
                 s = v1 + v2
-                if s in aux.bool_vars:
+                if s in partial_sum.bool_vars:
                     self._clauses.append([-variables[0].bool_vars[v1],
                                          -variables[1].bool_vars[v2],
-                                         aux.bool_vars[s]])
+                                         partial_sum.bool_vars[s]])
 
-        self._encode_sum_eq([aux] + list(variables[2:]), target)
+        self._encode_sum_eq([partial_sum] + list(variables[2:]), target)
 
     def _encode_constraint(self, constraint):
         if isinstance(constraint, tuple):

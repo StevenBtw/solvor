@@ -25,7 +25,8 @@ can struggle with badly scaled coefficients).
 
 from array import array
 from collections.abc import Sequence
-from solvor.types import Status, Result
+
+from solvor.types import Result, Status
 
 __all__ = ["solve_lp"]
 
@@ -131,8 +132,8 @@ def _phase2(matrix, basis, basis_set, m, eps, max_iter):
     n_cols = len(matrix[0])
 
     for iteration in range(max_iter):
+        # Bland's rule for entering: smallest index with negative reduced cost
         enter = -1
-
         for j in range(n_cols - 1):
             if j not in basis_set and matrix[-1][j] < -eps:
                 enter = j
@@ -141,8 +142,8 @@ def _phase2(matrix, basis, basis_set, m, eps, max_iter):
         if enter == -1:
             return Status.OPTIMAL, iteration, matrix, basis, basis_set
 
+        # Bland's rule for leaving: minimum ratio, ties broken by smallest basis index
         leave, min_ratio = -1, float('inf')
-
         for i in range(m):
             if matrix[i][enter] > eps:
                 ratio = matrix[i][-1] / matrix[i][enter]
