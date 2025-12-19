@@ -23,10 +23,10 @@ shortest paths are undefined and status is UNBOUNDED.
 Returns shortest paths from start to all reachable nodes, or to a specific
 target if provided.
 
-Don't use this for: non-negative edges (use dijkstra), or all-pairs (floyd_warshal).
+Don't use this for: non-negative edges (use dijkstra), or all-pairs (floyd_warshall).
 """
 
-from solvor.types import Status, Result
+from solvor.types import Result, Status
 
 __all__ = ["bellman_ford"]
 

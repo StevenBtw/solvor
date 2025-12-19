@@ -43,7 +43,8 @@ Example: tiling a 2x3 board with 3 dominoes:
 
 from collections.abc import Sequence
 from dataclasses import dataclass, field
-from solvor.types import Status, Result
+
+from solvor.types import Result, Status
 
 __all__ = ["solve_exact_cover"]
 

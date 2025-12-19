@@ -24,8 +24,9 @@ Don't use this for: directed graphs, or shortest paths (that's dijkstra).
 """
 
 from collections.abc import Iterable
-from heapq import heappush, heappop
-from solvor.types import Status, Result
+from heapq import heappop, heappush
+
+from solvor.types import Result, Status
 
 __all__ = ["kruskal", "prim"]
 
