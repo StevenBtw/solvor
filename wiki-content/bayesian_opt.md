@@ -2,7 +2,7 @@
 
 **Bayesian optimization for expensive function evaluations.**
 
-## At a Glance
+## Summary 
 
 - **Category:** [Metaheuristics](Metaheuristics)
 - **Problem Type:** Expensive black-box optimization
