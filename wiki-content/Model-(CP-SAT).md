@@ -2,7 +2,7 @@
 
 **Constraint programming with integer variables - natural modeling compiled to SAT.**
 
-## At a Glance
+## Summary
 
 - **Category:** [Constraint Programming](Constraint-Programming)
 - **Problem Type:** Constraint satisfaction with integer variables
