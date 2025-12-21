@@ -1,6 +1,6 @@
 # hungarian
 
-**Optimal assignment in O(n³) - the workhorse for matching.**
+**Optimal assignment in O(n³), the workhorse for matching.**
 
 ## At a Glance
 
