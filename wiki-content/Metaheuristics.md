@@ -41,7 +41,7 @@ For expensive function evaluations. Builds a surrogate model (Gaussian process) 
 - Objective function is black-box or noisy
 - Many local optima (non-convex landscapes)
 - Combinatorial optimization (TSP, job shop scheduling)
-- Fast prototyping - implement a neighbor function, you're done
+- Fast prototyping, implement a neighbor function, you're done
 - Multi-objective optimization (Pareto fronts)
 
 **The magic:** Flexible, fast to implement, handle arbitrary objectives.
@@ -102,19 +102,19 @@ print(result.objective)  # Total distance
 - **Small neighbor moves** - Don't teleport randomly, make local perturbations
 
 ### For Tabu Search
-- **Cooldown length matters** - Too short: cycles. Too long: missed opportunities
-- **Diversification** - If stuck, restart or add random moves
-- **Aspiration criteria** - Override tabu if you find a new best
+- **Cooldown length matters**, to short: cycles. Too long: missed opportunities
+- **Diversification**, if stuck, restart or add random moves
+- **Aspiration criteria**, override tabu if you find a new best
 
 ### For Genetic Algorithms
-- **Crossover is critical** - Bad crossover = expensive random search
+- **Crossover is critical**, bad crossover = expensive random search
 - **Balance exploration/exploitation** - High mutation rate = more exploration
-- **Elite preservation** - Keep the best solutions across generations
+- **Elite preservation**, keep the best solutions across generations
 
 ### For Bayesian Optimization
-- **Use for 10-100 evaluations** - Below that, random search is fine. Above that, other methods are faster
-- **Low dimensions work best** - Struggles above 15-20 dimensions
-- **Initial random sampling** - Start with 5-10 random points to seed the model
+- **Use for 10-100 evaluations**, below that, random search is fine. Above that, other methods are faster
+- **Low dimensions work best**, struggles above 15-20 dimensions
+- **Initial random sampling**, start with 5-10 random points to seed the model
 
 ## Real-World Applications
 
