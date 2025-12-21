@@ -2,7 +2,7 @@
 
 **Adaptive learning rate per parameter using RMS of gradients.**
 
-## At a Glance
+## Summary
 
 - **Category:** [Continuous Optimization](Continuous-Optimization)
 - **Complexity:** O(iterations × gradient_cost)
