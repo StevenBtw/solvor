@@ -32,6 +32,7 @@ from solvor.types import Result, Status
 
 __all__ = ["solve_sat"]
 
+
 def solve_sat(
     clauses: Sequence[Sequence[int]],
     *,
@@ -39,7 +40,6 @@ def solve_sat(
     max_conflicts: int = 100,
     max_restarts: int = 100,
 ) -> Result:
-
     if not clauses:
         return Result({}, 0, 0, 0)
 
@@ -52,6 +52,7 @@ def solve_sat(
             variables.add(abs(lit))
     n_vars = max(variables) if variables else 0
 
+    # Watch first two literals per clause. Only re-check when a watched literal becomes false.
     watch = defaultdict(list)
     for i, clause in enumerate(clauses):
         if len(clause) >= 1:
@@ -163,6 +164,7 @@ def solve_sat(
         return None
 
     def analyze(conflict_clause_idx):
+        """Learn a clause from the conflict, return it and the level to backtrack to."""
         if conflict_clause_idx < len(clauses):
             clause = clauses[conflict_clause_idx]
         else:
