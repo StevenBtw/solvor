@@ -29,13 +29,18 @@ result = kruskal(n_nodes=4, edges=edges, allow_forest=True)
 
 ## prim
 
-Node-centric approach. Grows tree from a start node.
+Node-centric approach. Grows tree from a start node using adjacency dict.
 
 ```python
 from solvor import prim
 
-edges = [(0, 1, 4), (0, 2, 3), (1, 2, 2), (1, 3, 5), (2, 3, 6)]
-result = prim(n_nodes=4, edges=edges, start=0)
+graph = {
+    0: [(1, 4), (2, 3)],
+    1: [(0, 4), (2, 2), (3, 5)],
+    2: [(0, 3), (1, 2), (3, 6)],
+    3: [(1, 5), (2, 6)]
+}
+result = prim(graph, start=0)
 print(result.solution)   # MST edges
 print(result.objective)  # 10
 ```

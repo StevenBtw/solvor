@@ -19,9 +19,9 @@ def solve_lp(
     b: Sequence[float],
     *,
     minimize: bool = True,
-    max_iter: int = 100_000,
     eps: float = 1e-10,
-) -> Result[list[float]]
+    max_iter: int = 100_000,
+) -> Result[tuple[float, ...]]
 ```
 
 ## Parameters
