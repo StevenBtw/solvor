@@ -9,8 +9,11 @@ def nelder_mead(
     objective_fn: Callable[[Sequence[float]], float],
     x0: Sequence[float],
     *,
-    max_iter: int = 10_000,
-    tol: float = 1e-8,
+    minimize: bool = True,
+    max_iter: int = 1000,
+    tol: float = 1e-6,
+    adaptive: bool = False,
+    initial_step: float = 0.05,
     on_progress: Callable[[Progress], bool | None] | None = None,
     progress_interval: int = 0,
 ) -> Result[list[float]]

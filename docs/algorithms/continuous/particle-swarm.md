@@ -24,17 +24,19 @@ print(result.solution)  # Close to [0, 0, 0, 0, 0]
 | Parameter | Description |
 |-----------|-------------|
 | `bounds` | List of (min, max) for each dimension |
-| `n_particles` | Swarm size |
-| `w` | Inertia weight (momentum) |
-| `c1` | Cognitive coefficient (personal best attraction) |
-| `c2` | Social coefficient (global best attraction) |
+| `n_particles` | Swarm size (default 30) |
+| `inertia` | Inertia weight/momentum (default 0.7) |
+| `cognitive` | Personal best attraction (default 1.5) |
+| `social` | Global best attraction (default 1.5) |
+| `inertia_decay` | If set, linearly decay inertia to this value |
+| `initial_positions` | Warm-start with known good positions |
 
 ## How It Works
 
 1. Initialize particles with random positions and velocities
 2. Evaluate all particles
 3. Update personal and global bests
-4. Update velocities: v = w·v + c1·r1·(pbest - x) + c2·r2·(gbest - x)
+4. Update velocities: v = inertia·v + cognitive·r1·(pbest - x) + social·r2·(gbest - x)
 5. Update positions: x = x + v
 6. Repeat
 

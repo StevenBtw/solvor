@@ -8,10 +8,12 @@ Large Neighborhood Search. Destroy part of your solution and rebuild it better. 
 def lns[T](
     initial: T,
     objective_fn: Callable[[T], float],
-    destroy_ops: Sequence[Callable[[T], T]],
-    repair_ops: Sequence[Callable[[T], T]],
+    destroy: Callable[[T, Random], T],
+    repair: Callable[[T, Random], T],
     *,
     max_iter: int = 1000,
+    max_no_improve: int = 100,
+    accept: str = "improving",  # "improving", "accept_all", "simulated_annealing"
     on_progress: Callable[[Progress], bool | None] | None = None,
     progress_interval: int = 0,
 ) -> Result[T]
@@ -19,11 +21,12 @@ def lns[T](
 def alns[T](
     initial: T,
     objective_fn: Callable[[T], float],
-    destroy_ops: Sequence[Callable[[T], T]],
-    repair_ops: Sequence[Callable[[T], T]],
+    destroy_ops: Sequence[Callable[[T, Random], T]],
+    repair_ops: Sequence[Callable[[T, Random], T]],
     *,
-    max_iter: int = 1000,
-    learning_rate: float = 0.1,
+    max_iter: int = 10000,
+    segment_size: int = 100,
+    reaction_factor: float = 0.1,
     on_progress: Callable[[Progress], bool | None] | None = None,
     progress_interval: int = 0,
 ) -> Result[T]
@@ -35,39 +38,44 @@ def alns[T](
 |-----------|-------------|
 | `initial` | Starting solution |
 | `objective_fn` | Function to minimize |
-| `destroy_ops` | List of destroy operators |
-| `repair_ops` | List of repair operators |
+| `destroy` / `destroy_ops` | Destroy operator(s) taking (solution, Random) |
+| `repair` / `repair_ops` | Repair operator(s) taking (partial, Random) |
 | `max_iter` | Maximum iterations |
-| `learning_rate` | How fast ALNS adapts weights |
+| `reaction_factor` | How fast ALNS adapts weights (0.1 = 10% per segment) |
 
 ## Example
 
 ```python
 from solvor import lns, alns
-import random
+from random import Random
 
-# VRP-like problem
-def destroy_random(routes):
-    # Remove 20% of customers randomly
-    routes = [list(r) for r in routes]
-    to_remove = random.sample(range(len(routes)), k=max(1, len(routes)//5))
-    for i in sorted(to_remove, reverse=True):
-        del routes[i]
-    return routes
+# LNS: single destroy/repair operators (receive Random instance)
+def destroy(solution, rng: Random):
+    # Remove some elements
+    solution = list(solution)
+    idx = rng.randint(0, len(solution) - 1)
+    solution[idx] = None
+    return solution
 
-def destroy_worst(routes):
-    # Remove customers with highest cost contribution
-    # ... implementation
-    return routes
+def repair(partial, rng: Random):
+    # Fill in missing elements
+    return [0 if v is None else v for v in partial]
 
-def repair_greedy(routes):
-    # Insert unassigned customers greedily
-    # ... implementation
-    return routes
+result = lns(initial, objective, destroy, repair, max_iter=1000)
 
-result = lns(initial, objective, [destroy_random, destroy_worst], [repair_greedy])
+# ALNS: multiple operators, learns which work best
+def destroy_random(sol, rng: Random):
+    # ... remove randomly
+    return sol
 
-# ALNS learns which operators work best
+def destroy_worst(sol, rng: Random):
+    # ... remove highest cost elements
+    return sol
+
+def repair_greedy(partial, rng: Random):
+    # ... insert greedily
+    return partial
+
 result = alns(initial, objective, [destroy_random, destroy_worst], [repair_greedy])
 ```
 
