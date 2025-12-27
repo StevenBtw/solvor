@@ -704,9 +704,11 @@ Docs live in `docs/` and are built with MkDocs + Material theme. Deployed to [so
 # Serve locally
 uv run mkdocs serve
 
-# Build
-uv run mkdocs build
+# Build (use --strict to catch issues before CI does)
+uv run mkdocs build --strict
 ```
+
+**Strict mode catches:** Missing type annotations on public APIs, broken links, invalid markdown. CI runs this automatically via `test_docs.py`.
 
 **When to update docs:**
 
