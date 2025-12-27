@@ -4,6 +4,8 @@ Thanks for your interest in contributing to solvor!
 
 **Python 3.12+** is required. The project is tested on Python 3.12, 3.13, and 3.14, and developed with 3.14 in mind primarily.
 
+**Tooling:** We use [uv](https://docs.astral.sh/uv/) for package management, [Ruff](https://docs.astral.sh/ruff/) for linting/formatting, [ty](https://docs.astral.sh/ty/) for type checking, and [Codecov](https://codecov.io/) for coverage tracking.
+
 ## Development Setup
 
 ```bash
@@ -687,7 +689,7 @@ The project uses GitHub Actions (`.github/workflows/`):
 
 ## Type Checking
 
-We use [ty](https://github.com/astral-sh/ty) for static type checking, enforced by CI.
+We use [ty](https://docs.astral.sh/ty/) for static type checking, enforced by CI.
 
 ```bash
 # Run type checker
