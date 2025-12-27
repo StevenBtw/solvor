@@ -2,7 +2,6 @@
 [![codecov](https://codecov.io/gh/StevenBtw/solvOR/graph/badge.svg?token=A3H2COO119)](https://codecov.io/gh/StevenBtw/solvOR)
 [![PyPI](https://img.shields.io/pypi/v/solvor)](https://pypi.org/project/solvor/)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
-
 [![Python 3.12 | 3.13 | 3.14](https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue.svg)](https://pypi.org/project/solvor/)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
@@ -163,7 +162,7 @@ Population-based global search. Let a swarm of candidates explore for you. DE an
 
 ```python
 result = evolve(objective_fn=fitness, population=pop, crossover=cx, mutate=mut)
-result = differential_evolution(objective_fn, bounds=[(0, 10)] * n, pop_size=50)
+result = differential_evolution(objective_fn, bounds=[(0, 10)] * n, population_size=50)
 result = particle_swarm(objective_fn, bounds=[(0, 10)] * n, n_particles=30)
 ```
 
@@ -358,12 +357,13 @@ result = solve_knapsack(values, weights, capacity=50)
 
 ### solve_bin_pack
 
-Bin packing with First Fit Decreasing. Minimize bins needed for items.
+Bin packing heuristics. Minimize bins needed for items.
 
 ```python
 items = [4, 8, 1, 4, 2, 1]
 result = solve_bin_pack(items, bin_capacity=10)
-# result.solution = [[8, 2], [4, 4, 1, 1]] - items per bin
+# result.solution = (1, 0, 0, 1, 0, 0) - bin index for each item
+# result.objective = 2 (number of bins)
 ```
 
 ### solve_job_shop

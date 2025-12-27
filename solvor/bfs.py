@@ -1,10 +1,10 @@
 """
 Breadth-first and depth-first search for unweighted graphs.
 
-BFS finds shortest paths in unweighted graphs, exploring level by level. DFS
-explores deeply first, useful for connectivity, reachability, and when you
-don't care about shortest path. Both are O(V + E), the difference is queue
-vs stack.
+BFS is the polite algorithm: it waits its turn, exploring level by level,
+guaranteeing shortest paths. DFS is the curious one: it dives deep before
+backtracking, useful when you just need any path or want to explore everything.
+Both are O(V + E), the difference is queue vs stack.
 
 Use this for: mazes, grid navigation, finding any path, flood fill, checking
 if two nodes are connected. When goal is None, explores all reachable nodes.
@@ -34,6 +34,7 @@ def bfs[S](
     *,
     max_iter: int = 1_000_000,
 ) -> Result:
+    """Breadth-first search, guarantees shortest path in unweighted graphs."""
     is_goal = (lambda s: s == goal) if not callable(goal) and goal is not None else goal
 
     parent: dict[S, S] = {}
@@ -70,6 +71,7 @@ def dfs[S](
     *,
     max_iter: int = 1_000_000,
 ) -> Result:
+    """Depth-first search, finds a path (not necessarily shortest)."""
     is_goal = (lambda s: s == goal) if not callable(goal) and goal is not None else goal
 
     parent: dict[S, S] = {}

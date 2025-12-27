@@ -7,21 +7,21 @@ Vehicle Routing Problem with Time Windows. Route vehicles to serve customers wit
 ```python
 from solvor import Customer, solve_vrptw
 
-# Depot at (0,0), customers at various locations
+# Customers at various locations (depot is separate)
 customers = [
-    Customer(x=0, y=0, demand=0, ready=0, due=100, service=0),  # Depot
-    Customer(x=2, y=3, demand=10, ready=0, due=50, service=5),
-    Customer(x=5, y=1, demand=15, ready=10, due=60, service=5),
-    Customer(x=3, y=4, demand=20, ready=20, due=70, service=5),
+    Customer(id=1, x=2, y=3, demand=10, tw_start=0, tw_end=50, service_time=5),
+    Customer(id=2, x=5, y=1, demand=15, tw_start=10, tw_end=60, service_time=5),
+    Customer(id=3, x=3, y=4, demand=20, tw_start=20, tw_end=70, service_time=5),
 ]
 
 result = solve_vrptw(
     customers,
-    vehicle_capacity=30,
-    n_vehicles=2
+    vehicles=2,
+    depot=(0, 0),
+    vehicle_capacity=30
 )
-print(result.solution)   # Routes for each vehicle
-print(result.objective)  # Total distance
+print(result.solution.routes)  # Routes for each vehicle
+print(result.objective)        # Total distance
 ```
 
 ## Customer
@@ -29,12 +29,14 @@ print(result.objective)  # Total distance
 ```python
 @dataclass
 class Customer:
-    x: float            # X coordinate
-    y: float            # Y coordinate
-    demand: float       # Demand to serve
-    ready: float        # Earliest service time
-    due: float          # Latest service time
-    service: float      # Service duration
+    id: int                        # Unique customer ID
+    x: float                       # X coordinate
+    y: float                       # Y coordinate
+    demand: float = 0.0            # Demand to serve
+    tw_start: float = 0.0          # Earliest service time
+    tw_end: float = inf            # Latest service time
+    service_time: float = 0.0      # Service duration
+    required_vehicles: int = 1     # For multi-resource visits
 ```
 
 ## The Problem

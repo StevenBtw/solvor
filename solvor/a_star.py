@@ -1,9 +1,10 @@
 """
 A* search for goal-directed shortest paths with heuristics.
 
-Use this when you have an estimate of distance to the goal. A* expands fewer
-nodes than Dijkstra by prioritizing promising directions. The heuristic must
-be admissible (never overestimate) for optimal results.
+Dijkstra explores in all directions like ripples in a pond. A* knows where it's
+going and prioritizes paths that look promising. Give it a heuristic (estimate
+to goal) and it expands far fewer nodes. The heuristic must be admissible (never
+overestimate) for optimal results.
 
     from solvor.a_star import astar, astar_grid
 
@@ -47,6 +48,7 @@ def astar[S](
     max_iter: int = 1_000_000,
     max_cost: float | None = None,
 ) -> Result:
+    """A* search with heuristic guidance, returns optimal path when weight=1."""
     is_goal = goal if callable(goal) else lambda s: s == goal
 
     g: dict[S, float] = {start: 0.0}
@@ -107,6 +109,7 @@ def astar_grid(
     weight: float = 1.0,
     max_iter: int = 1_000_000,
 ) -> Result:
+    """A* for 2D grids with built-in heuristics and neighbor generation."""
     rows = len(grid)
     cols = len(grid[0]) if rows else 0
     blocked_set = {blocked} if isinstance(blocked, int) else set(blocked)

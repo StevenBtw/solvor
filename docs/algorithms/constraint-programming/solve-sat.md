@@ -15,7 +15,11 @@ Boolean satisfiability. Feed it clauses in CNF (conjunctive normal form), get ba
 def solve_sat(
     clauses: Sequence[Sequence[int]],
     *,
-    max_iter: int = 1_000_000,
+    assumptions: Sequence[int] | None = None,
+    max_conflicts: int = 100_000,
+    max_restarts: int = 10_000,
+    solution_limit: int = 1,
+    luby_factor: int = 100,
 ) -> Result[dict[int, bool]]
 ```
 
@@ -24,7 +28,9 @@ def solve_sat(
 | Parameter | Description |
 |-----------|-------------|
 | `clauses` | List of clauses in CNF. Each clause is a list of literals. Positive = variable, negative = NOT variable. |
-| `max_iter` | Maximum solver iterations |
+| `assumptions` | Force certain literals to be true/false before solving |
+| `max_conflicts` | Maximum conflicts before giving up |
+| `solution_limit` | Find up to this many solutions (use `result.solutions`) |
 
 ## Example
 
