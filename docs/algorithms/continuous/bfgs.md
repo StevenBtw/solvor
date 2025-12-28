@@ -20,7 +20,7 @@ print(result.solution)  # Close to [0, 0]
 ```
 
 **Memory:** O(n²) for Hessian approximation
-**Best for:** Smooth functions, moderate dimensions
+**Best for:** Smooth functions and moderate dimensions
 
 ## lbfgs
 

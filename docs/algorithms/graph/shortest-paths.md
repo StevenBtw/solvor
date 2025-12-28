@@ -44,7 +44,7 @@ def heuristic(node):
 result = astar('A', 'D', lambda n: graph[n], heuristic)
 ```
 
-**Guarantees:** Optimal with admissible heuristic (never overestimates)
+**Guarantees:** Optimal with admissible heuristic (never overestimates).
 
 ## astar_grid
 
