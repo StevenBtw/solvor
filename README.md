@@ -2,6 +2,7 @@
 [![Docs](https://github.com/StevenBtw/solvOR/actions/workflows/docs.yml/badge.svg)](https://solvOR.ai)
 [![codecov](https://codecov.io/gh/StevenBtw/solvOR/graph/badge.svg?token=A3H2COO119)](https://codecov.io/gh/StevenBtw/solvOR)
 [![PyPI](https://img.shields.io/pypi/v/solvor)](https://pypi.org/project/solvor/)
+[![Downloads](https://img.shields.io/pypi/dm/solvor)](https://pypi.org/project/solvor/)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
 [![Python 3.12 | 3.13 | 3.14](https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue.svg)](https://pypi.org/project/solvor/)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://docs.astral.sh/uv/)
