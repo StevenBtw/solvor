@@ -58,7 +58,7 @@ print(result.solution)  # Close to [0, 0, 0]
 
 ## Cooling Schedules
 
-The `cooling` parameter can be a float (exponential decay rate) or a schedule function:
+The `cooling` parameter can be a float (exponential decay rate), or a schedule function:
 
 ```python
 from solvor import anneal, exponential_cooling, linear_cooling, logarithmic_cooling
