@@ -47,14 +47,34 @@ print(result.objective)  # 12.0 approximately
 
 ## How It Works
 
-Interior point methods maintain a point strictly inside the feasible region and move toward optimality while staying interior. This implementation uses:
+While simplex hops between vertices, interior point methods stay strictly inside the feasible region and approach optimality along a curved path called the *central path*.
 
-1. **Primal-dual formulation** — Solves primal and dual problems simultaneously
-2. **Mehrotra predictor-corrector** — Two-step Newton method for faster convergence
-3. **Normal equations** — Reduces the KKT system to a smaller symmetric system
-4. **Cholesky decomposition** — Efficiently solves the symmetric linear system
+**The barrier idea:** Add a logarithmic penalty for approaching boundaries:
 
-Each iteration requires O(n³) work for the linear solve, but converges in O(√n) iterations.
+```text
+minimize c·x - μ Σ log(xᵢ)
+```
+
+As μ→0, the solution approaches the true optimum. But we don't solve this directly.
+
+**Primal-dual formulation:** Instead of just the primal problem, we solve primal and dual simultaneously. The optimality conditions (KKT) are:
+
+```text
+Ax = b           (primal feasibility)
+A'y + z = c      (dual feasibility)
+xᵢzᵢ = 0         (complementarity)
+x, z ≥ 0
+```
+
+We relax complementarity to xᵢzᵢ = μ and drive μ→0.
+
+**Newton's method:** Each iteration solves a linear system (the KKT system) to find a direction, then takes a step while staying positive. The magic is that convergence is polynomial—typically 20-50 iterations regardless of problem size.
+
+**Mehrotra predictor-corrector:** Two Newton steps per iteration. First a "predictor" step toward the boundary, then a "corrector" step that recenters. Nearly doubles the practical speed.
+
+**Normal equations:** The 3×3 block KKT system reduces to a smaller m×m system (A D A'), solved via Cholesky decomposition.
+
+For the theory, see [Interior Point Methods on Wikipedia](https://en.wikipedia.org/wiki/Interior-point_method) or Nocedal & Wright's *Numerical Optimization*.
 
 ## Simplex vs Interior Point
 
