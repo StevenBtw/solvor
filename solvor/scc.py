@@ -40,7 +40,10 @@ Works with any hashable node type. For incoming edges (predecessors), swap
 the edge direction in your neighbors function.
 
 Note: SCC uses recursion internally. For very deep graphs (>1000 nodes in a
-single path), you may need to increase sys.setrecursionlimit.
+single path), you may need to increase the recursion limit:
+
+    import sys
+    sys.setrecursionlimit(5000)  # adjust as needed
 """
 
 from collections import defaultdict, deque

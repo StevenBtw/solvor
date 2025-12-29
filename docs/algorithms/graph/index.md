@@ -2,6 +2,10 @@
 
 Paths, flows, and trees. When your problem lives on a network of nodes and edges.
 
+!!! tip "New in 0.5.3"
+    **Centrality & Community Detection** — Six new algorithms for analyzing graph structure:
+    `pagerank`, `louvain`, `articulation_points`, `bridges`, `kcore_decomposition`, `kcore`
+
 ## Categories
 
 ### Pathfinding
@@ -22,6 +26,21 @@ Paths, flows, and trees. When your problem lives on a network of nodes and edges
 | [`topological_sort`](dependency-analysis.md) | Order by dependencies | Build systems, task scheduling |
 | [`strongly_connected_components`](dependency-analysis.md) | Find cycles | Detecting circular deps |
 | [`condense`](dependency-analysis.md) | Collapse cycles to DAG | Simplifying cyclic graphs |
+
+### Centrality & Structure
+
+| Solver | Purpose | Use When |
+|--------|---------|----------|
+| [`pagerank`](centrality.md) | Node importance | Ranking by influence |
+| [`articulation_points`](centrality.md) | Cut vertices | Single points of failure |
+| [`bridges`](centrality.md) | Cut edges | Critical connections |
+| [`kcore_decomposition`](centrality.md) | Core numbers | Core vs periphery analysis |
+
+### Community Detection
+
+| Solver | Purpose | Use When |
+|--------|---------|----------|
+| [`louvain`](community-detection.md) | Clustering | Finding groups of related nodes |
 
 ### Network Flow
 
