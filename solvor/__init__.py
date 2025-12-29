@@ -1,5 +1,7 @@
 """Solvor - Pure Python Optimization Solvers."""
 
+__version__ = "0.5.2"
+
 from solvor.a_star import astar, astar_grid
 from solvor.anneal import anneal, exponential_cooling, linear_cooling, logarithmic_cooling
 from solvor.bayesian import bayesian_opt
