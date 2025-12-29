@@ -154,6 +154,7 @@ nav:
           - Overview: algorithms/graph/index.md
           - Pathfinding: algorithms/graph/pathfinding.md
           - Shortest Paths: algorithms/graph/shortest-paths.md
+          - Dependency Analysis: algorithms/graph/dependency-analysis.md
           - Network Flow: algorithms/graph/network-flow.md
           - Minimum Spanning Tree: algorithms/graph/mst.md
       - Combinatorial:

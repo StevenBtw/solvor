@@ -2,6 +2,12 @@
 
 What broke, what got fixed, and what's new. The optimization journey, documented.
 
+## [Unreleased]
+
+### Added
+
+- **Dependency analysis:** `topological_sort`, `strongly_connected_components`, `condense` for build ordering, cycle detection, and graph condensation. Tarjan's algorithm for SCC, Kahn's algorithm for topsort.
+
 ## [0.5.2] - 2025-12-28
 
 **Who let de docs out!**

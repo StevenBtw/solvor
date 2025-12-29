@@ -29,6 +29,7 @@ from solvor.network_simplex import network_simplex
 from solvor.particle_swarm import particle_swarm
 from solvor.powell import powell
 from solvor.sat import solve_sat
+from solvor.scc import condense, strongly_connected_components, topological_sort
 from solvor.simplex import solve_lp
 from solvor.tabu import solve_tsp, tabu_search
 from solvor.types import Progress, ProgressCallback, Result, Status
@@ -67,6 +68,9 @@ __all__ = [
     "astar_grid",
     "bellman_ford",
     "floyd_warshall",
+    "strongly_connected_components",
+    "topological_sort",
+    "condense",
     "kruskal",
     "prim",
     "network_simplex",

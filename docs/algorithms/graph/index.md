@@ -15,6 +15,14 @@ Paths, flows, and trees. When your problem lives on a network of nodes and edges
 | [`bellman_ford`](shortest-paths.md) | Any (negative OK) | Negative edges |
 | [`floyd_warshall`](shortest-paths.md) | Any | All-pairs distances |
 
+### Dependency Analysis
+
+| Solver | Purpose | Use When |
+|--------|---------|----------|
+| [`topological_sort`](dependency-analysis.md) | Order by dependencies | Build systems, task scheduling |
+| [`strongly_connected_components`](dependency-analysis.md) | Find cycles | Detecting circular deps |
+| [`condense`](dependency-analysis.md) | Collapse cycles to DAG | Simplifying cyclic graphs |
+
 ### Network Flow
 
 | Solver | Objective | Use When |

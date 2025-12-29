@@ -30,7 +30,7 @@ Solvor all your optimization needs.
 | **Quasi-Newton** | `bfgs`, `lbfgs` | Fast convergence, smooth functions |
 | **Derivative-Free** | `nelder_mead`, `powell`, `bayesian_opt` | Black-box, expensive functions |
 | **Pathfinding** | `bfs`, `dfs`, `dijkstra`, `astar`, `astar_grid`, `bellman_ford`, `floyd_warshall` | Shortest paths, graph traversal |
-| **Graph** | `max_flow`, `min_cost_flow`, `kruskal`, `prim` | Flow, MST, connectivity |
+| **Graph** | `max_flow`, `min_cost_flow`, `kruskal`, `prim`, `topological_sort`, `strongly_connected_components` | Flow, MST, dependency analysis |
 | **Assignment** | `solve_assignment`, `solve_hungarian`, `network_simplex` | Matching, min-cost flow |
 | **Exact Cover** | `solve_exact_cover` | N-Queens, tiling puzzles |
 | **Utilities** | `FenwickTree`, `UnionFind` | Data structures for algorithms |
@@ -441,6 +441,8 @@ Result(
 | Shortest path, negative weights | `bellman_ford` |
 | All-pairs shortest paths | `floyd_warshall` |
 | Minimum spanning tree | `kruskal`, `prim` |
+| Dependency ordering | `topological_sort` |
+| Circular dependencies | `strongly_connected_components` |
 | Maximum flow | `max_flow` |
 | Min-cost flow | `min_cost_flow`, `network_simplex` |
 | Assignment, matching | `solve_hungarian`, `solve_assignment` |
