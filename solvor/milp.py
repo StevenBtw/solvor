@@ -50,8 +50,8 @@ For continuous-only problems, use simplex directly.
 from collections.abc import Sequence
 from heapq import heappop, heappush
 from math import ceil, floor
-from typing import NamedTuple
 from random import Random
+from typing import NamedTuple
 
 from solvor.lns import lns as _lns
 from solvor.simplex import Status as LPStatus

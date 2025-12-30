@@ -123,7 +123,12 @@ Group: stdlib, then local. No blank lines between.
    - Avoid abstractions that hide implementation details elsewhere
    - Exception: shared utilities in `utils/` (data structures, validation, helpers)
    - Goal: open `dijkstra.py` and understand Dijkstra without hunting for code
-7. **Primary function matches filename**
+7. **Cross-solver features are opt-in**
+   - When one solver can benefit from another (e.g., MILP + LNS), make it optional
+   - Off by default, enabled via parameter (e.g., `lns_iterations=0`)
+   - Import the other solver, don't reimplement. Add comment: `from solvor.lns import lns  # see lns.py`
+   - Keep cross-solver code minimal, delegate to the imported solver
+8. **Primary function matches filename**
    - `anneal.py` → `anneal()`
    - Problem-based: add `solve_` prefix (`milp.py` → `solve_milp()`)
 
