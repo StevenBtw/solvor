@@ -4,6 +4,18 @@ What broke, what got fixed, and what's new. The optimization journey, documented
 
 ## [0.5.4] - Unreleased
 
+### Added
+
+- **OR-Tools Examples:*** 24 converted examples showing solvOR as drop-in replacement for Google OR-Tools Organized by category:
+  - **Linear Solver (13):** LP, MIP, assignment, bin packing, knapsack problems using `solve_lp`, `solve_milp`, `solve_hungarian`, `solve_bin_pack`
+  - **CP-SAT (7):** Constraint satisfaction using `Model` and `solve_job_shop` - simple CSP, N-Queens, nurse scheduling, job shop, solution enumeration
+  - **Graph (2):** Max flow and linear sum assignment using `max_flow`, `solve_hungarian`
+  - **Algorithms (2):** Knapsack problems using `solve_knapsack`
+
+*All converted examples where generated using AI.
+
+- **OR-Tools Documentation:** New index page at `docs/examples/ortools.md` with benchmark comparisons. solvOR often faster for small problems (pure Python startup vs C++ overhead), competitive on medium problems, OR-Tools wins on large problems as expected.
+
 ### Changed
 
 - **MILP:** Greedy rounding + LNS heuristics for binary MIPs. Enable with `lns_iterations` parameter.
