@@ -6,11 +6,11 @@ What broke, what got fixed, and what's new. The optimization journey, documented
 
 ### Changed
 
-- **MILP performance improvements:** Binary variable detection auto-tightens bounds to [0,1]. Rounding heuristic finds good incumbents fast via greedy rounding + local search (flip/swap phases). Node solver now substitutes fixed variables to reduce problem size instead of adding bound constraints.
+- **MILP:** Greedy rounding + LNS heuristics for binary MIPs. Enable with `lns_iterations` parameter.
 
 ## [0.5.3] - 2025-12-29
 
-Some small QoL improvements and ported all the graph algoeithmes from another project (AutoMate) which now relies on solvOR.
+Some small QoL improvements and ported all the graph algorithms from another project (AutoMate) which now relies on solvOR.
 
 ### Added
 

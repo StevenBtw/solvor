@@ -29,12 +29,19 @@ Use this for:
 
 Parameters:
 
-    c: objective coefficients
-    A: constraint matrix
+    c: objective coefficients (minimize c @ x)
+    A: constraint matrix (A @ x <= b)
     b: constraint bounds
     integers: indices of integer-constrained variables
+    minimize: True for min, False for max (default: True)
     warm_start: initial solution to prune search tree
-    solution_limit: find multiple solutions
+    solution_limit: find multiple solutions (default: 1)
+    heuristics: rounding + local search heuristics (default: True)
+    lns_iterations: LNS improvement passes, 0 = off (default: 0)
+    lns_destroy_frac: fraction of variables to unfix per LNS iteration (default: 0.3)
+    seed: random seed for LNS reproducibility
+    max_nodes: branch-and-bound node limit (default: 100000)
+    gap_tol: optimality gap tolerance (default: 1e-6)
 
 CP is more expressive for logical constraints. SAT handles pure boolean.
 For continuous-only problems, use simplex directly.
@@ -44,7 +51,9 @@ from collections.abc import Sequence
 from heapq import heappop, heappush
 from math import ceil, floor
 from typing import NamedTuple
+from random import Random
 
+from solvor.lns import lns as _lns
 from solvor.simplex import Status as LPStatus
 from solvor.simplex import solve_lp
 from solvor.types import Result, Status
@@ -74,6 +83,10 @@ def solve_milp(
     gap_tol: float = 1e-6,
     warm_start: Sequence[float] | None = None,
     solution_limit: int = 1,
+    heuristics: bool = True,
+    lns_iterations: int = 0,
+    lns_destroy_frac: float = 0.3,
+    seed: int | None = None,
 ) -> Result:
     n = len(c)
     check_matrix_dims(c, A, b)
@@ -114,20 +127,37 @@ def solve_milp(
     if frac_var is None:
         return Result(root_result.solution, root_result.objective, 1, total_iters)
 
-    # Detect binary vars from LP solution range
-    is_binary = all(-eps <= root_result.solution[j] <= 1 + eps for j in int_set)
-    if is_binary:
+    # Check if LP relaxation suggests binary (values in [0,1])
+    looks_binary = all(-eps <= root_result.solution[j] <= 1 + eps for j in int_set)
+
+    # Only tighten bounds if explicit x_j <= 1 constraints exist
+    if looks_binary and _detect_binary(A, b, int_set, n, eps):
         for j in int_set:
             lower[j] = max(lower[j], 0.0)
             upper[j] = min(upper[j], 1.0)
 
-        # Rounding heuristic finds good incumbent fast
-        if best_solution is None:
-            rounded = _round_binary(root_result.solution, int_set, c, A, b, minimize, eps)
-            if rounded is not None:
-                best_obj = sum(c[j] * rounded[j] for j in range(n))
-                best_solution = rounded
-                all_solutions.append(rounded)
+    # Run heuristics if LP looks binary (even without explicit constraints)
+    if heuristics and looks_binary and best_solution is None:
+        rounded = _round_binary(root_result.solution, int_set, c, A, b, minimize, eps)
+        if rounded is not None:
+            best_obj = sum(c[j] * rounded[j] for j in range(n))
+            best_solution = rounded
+            all_solutions.append(rounded)
+
+    # LNS improvement for binary problems
+    if heuristics and looks_binary and lns_iterations > 0 and best_solution is not None:
+        rng = Random(seed)
+        improved, iters = _lns_improve(
+            best_solution, c, A, b, int_set, minimize, eps, max_iter,
+            lns_iterations, lns_destroy_frac, rng
+        )
+        total_iters += iters
+        if improved is not None:
+            improved_obj = sum(c[j] * improved[j] for j in range(n))
+            if (minimize and improved_obj < best_obj) or (not minimize and improved_obj > best_obj):
+                best_solution, best_obj = improved, improved_obj
+                if improved not in all_solutions:
+                    all_solutions.append(improved)
 
     tree: list[tuple[float, int, Node]] = []
     counter = 0
@@ -171,7 +201,7 @@ def solve_milp(
 
             if sign * sol_obj < sign * best_obj:
                 best_solution, best_obj = sol, sol_obj
-                gap = _compute_gap(best_obj, node_bound / sign if node_bound != 0 else 0, minimize)
+                gap = _compute_gap(best_obj, node_bound / sign if node_bound != 0 else 0)
                 if gap < gap_tol and solution_limit == 1:
                     return Result(best_solution, best_obj, nodes_explored, total_iters)
 
@@ -236,9 +266,6 @@ def _solve_node(c, A, b, lower, upper, minimize, eps, max_iter):
     for i, row in enumerate(A):
         fixed_contrib = sum(row[j] * fixed[j] for j in fixed)
         new_rhs = b[i] - fixed_contrib
-        if new_rhs < -eps:
-            return Result(None, float("inf") if minimize else float("-inf"),
-                         0, 0, LPStatus.INFEASIBLE)
         A_red.append([row[j] for j in free_vars])
         b_red.append(new_rhs)
 
@@ -285,10 +312,25 @@ def _most_fractional(solution, int_set, eps):
     return best_var
 
 
-def _compute_gap(best_obj, bound, minimize):
+def _compute_gap(best_obj, bound):
     if abs(best_obj) < 1e-10:
         return abs(best_obj - bound)
     return abs(best_obj - bound) / abs(best_obj)
+
+
+def _detect_binary(A, b, int_set, n, eps):
+    """Check if integer variables have explicit x_j <= 1 constraints."""
+    bounded = set()
+    for i, row in enumerate(A):
+        if abs(b[i] - 1.0) > eps:
+            continue
+        # Check if row is a single-variable upper bound: x_j <= 1
+        nz = [(j, row[j]) for j in range(n) if abs(row[j]) > eps]
+        if len(nz) == 1:
+            j, coef = nz[0]
+            if j in int_set and abs(coef - 1.0) < eps:
+                bounded.add(j)
+    return len(bounded) == len(int_set) and len(int_set) > 0
 
 
 def _is_feasible(x, A, b, int_set, eps):
@@ -379,3 +421,96 @@ def _round_binary(lp_solution, int_set, c, A, b, minimize, eps):
             improved = True
 
     return tuple(sol)
+
+
+def _lns_improve(solution, c, A, b, int_set, minimize, eps, max_iter, iterations, destroy_frac, rng):
+    n = len(solution)
+    int_list = list(int_set)
+    k = max(1, int(len(int_list) * destroy_frac))
+
+    def objective_fn(sol):
+        return sum(c[j] * sol[j] for j in range(n))
+
+    def destroy(sol, rng):
+        unfixed = set(rng.sample(int_list, min(k, len(int_list))))
+        return (sol, unfixed)
+
+    def repair(partial, _):
+        sol, unfixed = partial
+        candidate = _solve_sub_mip(sol, c, A, b, int_set, unfixed, minimize, eps, max_iter)
+        return candidate if candidate else sol
+
+    result = _lns(
+        solution, objective_fn, destroy, repair,
+        minimize=minimize, max_iter=iterations, max_no_improve=iterations,
+        seed=rng.randint(0, 2**31),
+    )
+    return result.solution, result.evaluations
+
+
+def _solve_sub_mip(current_sol, c, A, b, int_set, free_vars, minimize, eps, max_iter):
+    n = len(c)
+    sign = 1 if minimize else -1
+
+    lower = [0.0] * n
+    upper = [float("inf")] * n
+    for j in int_set:
+        if j in free_vars:
+            lower[j], upper[j] = 0.0, 1.0
+        else:
+            lower[j] = upper[j] = current_sol[j]
+
+    result = _solve_node(c, A, b, lower, upper, minimize, eps, max_iter)
+    if result.status != LPStatus.OPTIMAL:
+        return None
+
+    sol = list(result.solution)
+    frac_vars = [j for j in free_vars if abs(sol[j] - round(sol[j])) > eps]
+    if not frac_vars:
+        return tuple(sol)
+
+    # Small B&B for sub-problem
+    best_sol, best_obj = None, float("inf") if minimize else float("-inf")
+
+    rounded = list(sol)
+    for j in free_vars:
+        rounded[j] = round(rounded[j])
+    if _is_feasible(rounded, A, b, int_set, eps):
+        best_sol = tuple(rounded)
+        best_obj = sum(c[j] * rounded[j] for j in range(n))
+
+    stack = [(list(lower), list(upper))]
+    nodes = 0
+
+    while stack and nodes < 100:
+        lo, hi = stack.pop()
+        nodes += 1
+
+        res = _solve_node(c, A, b, lo, hi, minimize, eps, max_iter)
+        if res.status != LPStatus.OPTIMAL:
+            continue
+        if best_sol is not None and sign * res.objective >= sign * best_obj - eps:
+            continue
+
+        branch_var, best_frac = None, 0
+        for j in free_vars:
+            frac = abs(res.solution[j] - round(res.solution[j]))
+            if frac > eps and frac > best_frac:
+                branch_var, best_frac = j, frac
+
+        if branch_var is None:
+            obj = res.objective
+            if sign * obj < sign * best_obj:
+                best_sol, best_obj = tuple(res.solution), obj
+            continue
+
+        val = res.solution[branch_var]
+        lo_down, hi_down = list(lo), list(hi)
+        hi_down[branch_var] = floor(val)
+        stack.append((lo_down, hi_down))
+
+        lo_up, hi_up = list(lo), list(hi)
+        lo_up[branch_var] = ceil(val)
+        stack.append((lo_up, hi_up))
+
+    return best_sol
