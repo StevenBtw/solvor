@@ -502,7 +502,7 @@ def bellman_ford(n_nodes, edges, start):
 | `check_matrix_dims(c, A, b)` | LP/MILP dimension consistency |
 | `check_edge_nodes(edges, n_nodes)` | edge endpoints valid |
 | `check_sequence_lengths(seqs, names)` | parallel sequences same length |
-| `check_non_negative(seq, name)` | all values ≥ 0 |
+| `check_non_negative(val, name)` | val ≥ 0 |
 | `warn_large_coefficients(A)` | warns if max > 1e6 |
 
 ### Result Handling
