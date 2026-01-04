@@ -44,4 +44,4 @@ cd solvOR
 uv sync --extra dev
 ```
 
-This installs pytest, ruff, and type checkers.
+This installs pytest, ruff, type checkers, and mkdocs for documentation.
