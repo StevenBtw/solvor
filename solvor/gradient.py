@@ -45,7 +45,7 @@ you don't have access to gradients.
 """
 
 from collections.abc import Callable, Sequence
-from math import sqrt
+from math import cos, pi, sqrt
 
 from solvor.types import ProgressCallback, Result, Status
 from solvor.utils.helpers import report_progress
