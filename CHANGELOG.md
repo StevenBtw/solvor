@@ -2,9 +2,31 @@
 
 What broke, what got fixed, and what's new. The optimization journey, documented.
 
+## [0.5.4] - Unreleased
+
+### Added
+
+- **OR-Tools Examples:*** 24 converted examples showing solvOR as drop-in replacement for Google OR-Tools Organized by category:
+  - **Linear Solver (13):** LP, MIP, assignment, bin packing, knapsack problems using `solve_lp`, `solve_milp`, `solve_hungarian`, `solve_bin_pack`
+  - **CP-SAT (7):** Constraint satisfaction using `Model` and `solve_job_shop` - simple CSP, N-Queens, nurse scheduling, job shop, solution enumeration
+  - **Graph (2):** Max flow and linear sum assignment using `max_flow`, `solve_hungarian`
+  - **Algorithms (2):** Knapsack problems using `solve_knapsack`
+
+*All converted examples where generated using AI.
+
+- **OR-Tools Documentation:** New index page at `docs/examples/ortools.md` with benchmark comparisons. solvOR often faster for small problems (pure Python startup vs C++ overhead), competitive on medium problems, OR-Tools wins on large problems as expected.
+
+### Changed
+
+- **MILP:** Greedy rounding + LNS heuristics for binary MIPs. Enable with `lns_iterations` parameter.
+
+### Fixed
+
+- Bugfix for `simplex.py`.
+
 ## [0.5.3] - 2025-12-29
 
-Some small QoL improvements and ported all the graph algoeithmes from another project (AutoMate) which now relies on solvOR.
+Some small QoL improvements and ported all the graph algorithms from another project (AutoMate) which now relies on solvOR.
 
 ### Added
 
@@ -308,6 +330,7 @@ First public release. Moved my solver collection from "random scripts folder(s)"
 - Pure Python, no dependencies, works everywhere
 
 
+[0.5.4]: https://github.com/StevenBtw/solvOR/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/StevenBtw/solvOR/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/StevenBtw/solvOR/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/StevenBtw/solvOR/compare/v0.5.0...v0.5.1

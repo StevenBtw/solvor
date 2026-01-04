@@ -31,7 +31,7 @@ Follow the project's style:
 - **snake_case** everywhere
 - **Type hints** on public APIs, skip for internal helpers
 - **Keyword-only** for optional parameters (use `*`)
-- **Raw docstrings** use `r"""` for solver module docstrings (allows backslashes in ASCII diagrams)
+- **Raw docstrings** use `r"""` for solver module docstrings (allows backslashes in ASCII diagrams, and consistency is king)
 - **Minimal comments** explain *why*, not *what*
 - **Sets for membership** O(1) lookup, not lists
 - **Immutable state** solutions passed between iterations should be immutable; working structures can mutate
@@ -123,7 +123,12 @@ Group: stdlib, then local. No blank lines between.
    - Avoid abstractions that hide implementation details elsewhere
    - Exception: shared utilities in `utils/` (data structures, validation, helpers)
    - Goal: open `dijkstra.py` and understand Dijkstra without hunting for code
-7. **Primary function matches filename**
+7. **Cross-solver features are opt-in**
+   - When one solver can benefit from another (e.g., MILP + LNS), make it optional
+   - Off by default, enabled via parameter (e.g., `lns_iterations=0`)
+   - Import the other solver, don't reimplement. Add comment: `from solvor.lns import lns  # see lns.py`
+   - Keep cross-solver code minimal, delegate to the imported solver
+8. **Primary function matches filename**
    - `anneal.py` → `anneal()`
    - Problem-based: add `solve_` prefix (`milp.py` → `solve_milp()`)
 
@@ -497,7 +502,7 @@ def bellman_ford(n_nodes, edges, start):
 | `check_matrix_dims(c, A, b)` | LP/MILP dimension consistency |
 | `check_edge_nodes(edges, n_nodes)` | edge endpoints valid |
 | `check_sequence_lengths(seqs, names)` | parallel sequences same length |
-| `check_non_negative(seq, name)` | all values ≥ 0 |
+| `check_non_negative(val, name)` | val ≥ 0 |
 | `warn_large_coefficients(A)` | warns if max > 1e6 |
 
 ### Result Handling

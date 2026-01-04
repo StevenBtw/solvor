@@ -62,7 +62,13 @@
   color: #5eead4;
 }
 
-[data-md-color-scheme="slate"] .md-typeset a:hover {
+/* Fix for Firefox: code elements inside links need explicit color */
+[data-md-color-scheme="slate"] .md-typeset a code {
+  color: #5eead4;
+}
+
+[data-md-color-scheme="slate"] .md-typeset a:hover,
+[data-md-color-scheme="slate"] .md-typeset a:hover code {
   color: #99f6e4;
 }
 
