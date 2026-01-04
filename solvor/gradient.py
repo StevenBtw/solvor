@@ -238,8 +238,6 @@ def adam(
     v = [0.0] * n
     evals = 0
 
-    from math import cos, pi
-
     def get_lr(t):
         if lr_schedule == "constant":
             return lr
