@@ -340,10 +340,10 @@ class TestRoundingHeuristics:
         b = [8, 1, 1, 1]
 
         # With heuristics off and no B&B, might not find solution
-        result = solve_milp(c, A, b, [0, 1, 2], minimize=False,
-                           heuristics=False, max_nodes=0)
         # Could be infeasible or feasible depending on LP relaxation
         # Just verify it runs without error
+        solve_milp(c, A, b, [0, 1, 2], minimize=False,
+                   heuristics=False, max_nodes=0)
 
 
 class TestSubMIP:
