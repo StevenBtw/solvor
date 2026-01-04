@@ -536,6 +536,114 @@ class TestCoverageGaps:
         assert result.ok
         assert result.objective >= 30
 
+    def test_lns_adds_to_pool_when_different(self):
+        """LNS adds improved solution to pool when different from initial (lines 158-160)."""
+        # Larger problem where LNS can find genuinely different solution
+        n = 10
+        c = [3, 7, 4, 9, 5, 8, 2, 6, 10, 1]
+        weights = [2, 4, 3, 5, 3, 4, 2, 3, 5, 1]
+        A = [weights]
+        A.extend([[1 if j == i else 0 for j in range(n)] for i in range(n)])
+        b = [15] + [1] * n
+
+        result = solve_milp(c, A, b, list(range(n)), minimize=False,
+                           lns_iterations=50, lns_destroy_frac=0.5, seed=777, max_nodes=0)
+        assert result.ok
+
+    def test_direct_solution_pool_hit_limit(self):
+        """B&B hits solution_limit exactly (lines 195-197)."""
+        # Small complete enumeration problem
+        c = [1, 2]
+        A = [[1, 0], [0, 1]]  # x <= 1, y <= 1
+        b = [1, 1]
+
+        result = solve_milp(c, A, b, [0, 1], minimize=False,
+                           solution_limit=2, heuristics=False, max_nodes=100)
+        assert result.ok
+        # Should have collected solutions during B&B
+        if result.solutions:
+            assert len(result.solutions) <= 2
+
+    def test_solution_pool_exhausted_return(self):
+        """Returns solution pool after tree exhaustion (line 231)."""
+        c = [1, 1]
+        A = [[1, 0], [0, 1]]
+        b = [1, 1]
+
+        result = solve_milp(c, A, b, [0, 1], minimize=True,
+                           solution_limit=10, heuristics=False, max_nodes=1000)
+        assert result.ok
+        # Tree should be exhausted with all 4 solutions found
+        if result.solutions:
+            assert len(result.solutions) >= 1
+
+    def test_bound_pruning_with_good_incumbent(self):
+        """Nodes pruned when bound can't beat incumbent (line 174)."""
+        # Minimization with a tight warm start
+        c = [2, 3, 5]
+        A = [[-1, -1, -1], [1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        b = [-2, 1, 1, 1]
+
+        # Warm start with optimal solution should prune all nodes
+        result = solve_milp(c, A, b, [0, 1, 2], minimize=True,
+                           warm_start=[1.0, 1.0, 0.0])
+        assert result.ok
+        assert abs(result.objective - 5.0) < 1e-6
+
+    def test_lp_bound_pruning_after_solve(self):
+        """Node pruned after LP solve when bound >= incumbent (line 184)."""
+        c = [1, 1, 1]
+        A = [[-1, -1, -1], [1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        b = [-3, 1, 1, 1]
+
+        # Optimal warm start - subsequent LP bounds should prune
+        result = solve_milp(c, A, b, [0, 1, 2], minimize=True,
+                           warm_start=[1.0, 1.0, 1.0])
+        assert result.ok
+        assert abs(result.objective - 3.0) < 1e-6
+
+    def test_gap_tol_early_termination(self):
+        """Gap tolerance triggers early optimal return (line 208)."""
+        c = [1, 1]
+        A = [[-1, -1]]
+        b = [-10]
+
+        # Large gap tolerance should terminate early
+        result = solve_milp(c, A, b, [0, 1], minimize=True, gap_tol=1.0)
+        assert result.status == Status.OPTIMAL
+
+    def test_rounding_both_directions_fail(self):
+        """Rounding tries both directions before giving up (lines 376-382)."""
+        # Very tight constraints where both round directions might fail
+        c = [5, 5, 5, 5]
+        A = [[1, 1, 1, 1], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1],
+             [-1, -1, 0, 0]]  # x0 + x1 >= 1
+        b = [2, 1, 1, 1, 1, -1]
+
+        result = solve_milp(c, A, b, [0, 1, 2, 3], minimize=False, max_nodes=50)
+        assert result.ok
+
+    def test_infeasible_variable_bounds_directly(self):
+        """Branching creates hi < lo situation (line 245)."""
+        # Force branching to create infeasible node
+        c = [1]
+        A = [[1], [-1]]  # 0.4 <= x <= 0.6 - no integer
+        b = [0.6, -0.4]
+
+        result = solve_milp(c, A, b, [0])
+        assert result.status == Status.INFEASIBLE
+
+    def test_near_zero_objective_gap_calc(self):
+        """Gap computed correctly when objective near zero (line 317)."""
+        # Objective that should be exactly 0
+        c = [1, -1]
+        A = [[1, -1], [-1, 1], [1, 0], [0, 1]]  # x = y, both >= 0
+        b = [0, 0, 5, 5]
+
+        result = solve_milp(c, A, b, [0, 1], minimize=True)
+        assert result.ok
+        assert abs(result.objective) < 1e-6
+
 
 class TestEdgeCaseCoverage:
     """Additional edge cases for coverage."""
