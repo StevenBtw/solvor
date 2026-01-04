@@ -42,7 +42,7 @@ from solvor.types import Result, Status
 
 __all__ = ["solve_sat"]
 
-UNDEF = 2
+UNDEF = 2  # Variable state: 0=False, 1=True, 2=Undefined
 
 
 def lit_var(lit: int) -> int:
