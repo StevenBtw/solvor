@@ -31,7 +31,7 @@ Follow the project's style:
 - **snake_case** everywhere
 - **Type hints** on public APIs, skip for internal helpers
 - **Keyword-only** for optional parameters (use `*`)
-- **Raw docstrings** use `r"""` for solver module docstrings (allows backslashes in ASCII diagrams)
+- **Raw docstrings** use `r"""` for solver module docstrings (allows backslashes in ASCII diagrams, and consistency is king)
 - **Minimal comments** explain *why*, not *what*
 - **Sets for membership** O(1) lookup, not lists
 - **Immutable state** solutions passed between iterations should be immutable; working structures can mutate
