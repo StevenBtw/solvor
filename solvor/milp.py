@@ -112,7 +112,7 @@ def solve_milp(
 
     best_solution, best_obj = None, float("inf") if minimize else float("-inf")
     sign = 1 if minimize else -1
-    all_solutions: list[tuple] = []
+    all_solutions: list[tuple[float, ...]] = []
 
     # Use warm start as initial incumbent if provided and feasible
     if warm_start is not None:
