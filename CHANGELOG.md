@@ -1,6 +1,6 @@
 # Changelog
 
-What broke, what got fixed, and what's new. The optimization journey, documented.
+What broke, what got fixed, and what's new.
 
 ## [0.5.4] - Unreleased
 
