@@ -118,6 +118,7 @@ for row in cells:
     m.add(m.all_different(row))
 
 result = m.solve()
+
 ```
 
 </details>
