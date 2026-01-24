@@ -10,11 +10,11 @@ asks "is there a column worth adding?" Repeat until no improving column exists.
 
     # Cutting stock: minimize rolls to cut required pieces
     result = solve_cg(
+        demands=[97, 610, 395, 211],
         roll_width=100,
         piece_sizes=[45, 36, 31, 14],
-        demands=[97, 610, 395, 211],
     )
-    print(f"Rolls needed: {result.objective}")  # 453 rolls
+    print(f"Rolls needed: {result.objective}")  # 454 rolls
     print(result.solution)  # {pattern: count, ...}
 
     # Generic column generation with custom pricing
@@ -61,7 +61,9 @@ solution. For cutting stock, this gap is typically small (often zero).
 from collections.abc import Callable, Sequence
 from math import ceil
 
-from solvor.types import Progress, ProgressCallback, Result, Status
+from solvor.types import ProgressCallback, Result, Status
+from solvor.utils.helpers import report_progress
+from solvor.utils.validate import check_non_negative, check_positive, check_sequence_lengths
 
 __all__ = ["solve_cg"]
 
@@ -94,8 +96,7 @@ def solve_cg(
         return Result({}, 0.0, 0, 0, Status.OPTIMAL)
 
     for i, d in enumerate(demands):
-        if d < 0:
-            raise ValueError(f"demands[{i}] must be non-negative: {d}")
+        check_non_negative(d, name=f"demands[{i}]")
 
     if all(d == 0 for d in demands):
         return Result({}, 0.0, 0, 0, Status.OPTIMAL)
@@ -126,23 +127,13 @@ def solve_cg(
 
 
 def _solve_cutting_stock(
-    roll_width: float,
-    piece_sizes: Sequence[float],
-    demands: Sequence[int],
-    max_iter: int,
-    eps: float,
-    on_progress: ProgressCallback | None,
-    progress_interval: int,
-) -> Result[dict[tuple[int, ...], int]]:
+    roll_width, piece_sizes, demands, max_iter, eps, on_progress, progress_interval
+):
     """Cutting stock via column generation with knapsack pricing."""
-    n = len(piece_sizes)
-
-    if len(demands) != n:
-        raise ValueError(f"piece_sizes and demands length mismatch: {n} vs {len(demands)}")
+    n = check_sequence_lengths((piece_sizes, "piece_sizes"), (demands, "demands"))
 
     for i, size in enumerate(piece_sizes):
-        if size <= 0:
-            raise ValueError(f"piece_sizes[{i}] must be positive: {size}")
+        check_positive(size, name=f"piece_sizes[{i}]")
         if size > roll_width:
             raise ValueError(f"piece_sizes[{i}]={size} exceeds roll_width={roll_width}")
 
@@ -160,11 +151,9 @@ def _solve_cutting_stock(
     while iteration < max_iter:
         x_vals, duals, lp_obj = _solve_master_lp(patterns, demands, eps)
 
-        if on_progress and progress_interval > 0 and iteration % progress_interval == 0:
-            if on_progress(Progress(iteration, lp_obj, lp_obj, iteration)):
-                break
+        if report_progress(on_progress, progress_interval, iteration, lp_obj, lp_obj, iteration):
+            break
 
-        # Pricing: bounded knapsack with dual values as profits
         new_pattern, pricing_value = _knapsack_pricing(piece_sizes, roll_width, duals, eps)
 
         # Reduced cost = 1 - pricing_value; stop if >= 0
@@ -206,14 +195,8 @@ def _solve_cutting_stock(
 
 
 def _solve_custom(
-    demands: Sequence[int],
-    pricing_fn: PricingFn,
-    initial_columns: Sequence[Sequence[int]],
-    max_iter: int,
-    eps: float,
-    on_progress: ProgressCallback | None,
-    progress_interval: int,
-) -> Result[dict[tuple[int, ...], int]]:
+    demands, pricing_fn, initial_columns, max_iter, eps, on_progress, progress_interval
+):
     """Generic column generation with user-provided pricing."""
     m = len(demands)
 
@@ -230,9 +213,8 @@ def _solve_custom(
     while iteration < max_iter:
         x_vals, duals, lp_obj = _solve_master_lp(columns, demands, eps)
 
-        if on_progress and progress_interval > 0 and iteration % progress_interval == 0:
-            if on_progress(Progress(iteration, lp_obj, lp_obj, iteration)):
-                break
+        if report_progress(on_progress, progress_interval, iteration, lp_obj, lp_obj, iteration):
+            break
 
         new_col, reduced_cost = pricing_fn(duals)
 
@@ -400,14 +382,12 @@ def _knapsack_pricing(
 
     max_copies = [int(capacity // sizes[i]) if sizes[i] > 0 else 0 for i in range(n)]
 
-    # Use array-based DP for efficiency
-    # Scale capacity to integers
+    # Scale to integers for DP
     scale = 100
     cap_int = int(capacity * scale + 0.5)
     sizes_int = [max(1, int(sizes[i] * scale + 0.5)) for i in range(n)]
 
-    # dp[w] = best value achievable with weight exactly w
-    # Store patterns separately for memory efficiency
+    # dp_val[w] = best value at weight w, dp_pat[w] = pattern achieving it
     dp_val = [-float("inf")] * (cap_int + 1)
     dp_pat = [[0] * n for _ in range(cap_int + 1)]
     dp_val[0] = 0.0
@@ -417,8 +397,7 @@ def _knapsack_pricing(
             continue
 
         size_i = sizes_int[i]
-        # Process in reverse to avoid using same item twice per iteration
-        # Then allow multiple copies by processing multiple times
+        # Reverse iteration + multiple passes = bounded knapsack
         for _ in range(max_copies[i]):
             for w in range(cap_int, size_i - 1, -1):
                 prev_w = w - size_i
@@ -429,7 +408,6 @@ def _knapsack_pricing(
                         dp_pat[w] = list(dp_pat[prev_w])
                         dp_pat[w][i] += 1
 
-    # Find best
     best_w = 0
     best_val = 0.0
     for w in range(cap_int + 1):
@@ -439,7 +417,7 @@ def _knapsack_pricing(
 
     best_pat = dp_pat[best_w] if best_val > eps else [0] * n
 
-    # Verify feasibility
+    # Fall back to greedy if scaling caused infeasibility
     total_size = sum(best_pat[i] * sizes[i] for i in range(n))
     if total_size > capacity + eps:
         return _greedy_knapsack(sizes, capacity, values, max_copies)

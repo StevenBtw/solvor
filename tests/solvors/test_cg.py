@@ -128,7 +128,7 @@ class TestCustomPricing:
 class TestValidation:
     def test_negative_demand(self):
         """Negative demand raises error."""
-        with pytest.raises(ValueError, match="non-negative"):
+        with pytest.raises(ValueError, match="cannot be negative"):
             solve_cg(demands=[-1], roll_width=10, piece_sizes=[5])
 
     def test_piece_too_large(self):
@@ -290,3 +290,102 @@ class TestProgress:
             progress_interval=1,
         )
         assert result.iterations == 0
+
+    def test_custom_progress_callback(self):
+        """Progress callback works in custom mode."""
+        iterations = []
+
+        def on_progress(p):
+            iterations.append(p.iteration)
+            return False
+
+        iter_count = [0]
+
+        def pricing(duals):
+            iter_count[0] += 1
+            if iter_count[0] <= 2:
+                col = [0, 0, 0]
+                col[iter_count[0] - 1] = 2
+                return (tuple(col), -0.1)
+            return (None, 0.0)
+
+        result = solve_cg(
+            demands=[2, 2, 2],
+            pricing_fn=pricing,
+            initial_columns=[(1, 0, 0), (0, 1, 0), (0, 0, 1)],
+            on_progress=on_progress,
+            progress_interval=1,
+        )
+        assert result.ok
+        assert len(iterations) > 0
+
+    def test_custom_early_stop(self):
+        """Progress callback can stop custom mode early."""
+        def on_progress(p):
+            return True  # Stop immediately
+
+        def pricing(duals):
+            return ((2, 2, 2), -0.5)  # Would keep generating
+
+        result = solve_cg(
+            demands=[2, 2, 2],
+            pricing_fn=pricing,
+            initial_columns=[(1, 0, 0), (0, 1, 0), (0, 0, 1)],
+            on_progress=on_progress,
+            progress_interval=1,
+        )
+        assert result.iterations == 0
+
+
+class TestInternalFunctions:
+    def test_knapsack_empty(self):
+        """Knapsack with empty inputs."""
+        from solvor.cg import _knapsack_pricing
+
+        pattern, value = _knapsack_pricing([], 100, [], 1e-9)
+        assert pattern == ()
+        assert value == 0.0
+
+    def test_knapsack_zero_values(self):
+        """Knapsack with all zero values."""
+        from solvor.cg import _knapsack_pricing
+
+        pattern, value = _knapsack_pricing([10, 20], 100, [0.0, 0.0], 1e-9)
+        assert pattern == (0, 0)
+        assert value == 0.0
+
+    def test_greedy_knapsack(self):
+        """Test greedy knapsack fallback directly."""
+        from solvor.cg import _greedy_knapsack
+
+        # Test with valid inputs
+        pattern, value = _greedy_knapsack(
+            sizes=[10, 20, 30],
+            capacity=100,
+            values=[1.0, 2.0, 3.0],
+            max_copies=[10, 5, 3],
+        )
+        assert sum(pattern[i] * [10, 20, 30][i] for i in range(3)) <= 100
+        assert value > 0
+
+    def test_greedy_with_zero_values(self):
+        """Greedy with zero or negative values."""
+        from solvor.cg import _greedy_knapsack
+
+        pattern, value = _greedy_knapsack(
+            sizes=[10, 20],
+            capacity=100,
+            values=[0.0, -1.0],
+            max_copies=[10, 5],
+        )
+        assert pattern == (0, 0)
+        assert value == 0.0
+
+    def test_master_lp_empty_columns(self):
+        """Master LP with no columns."""
+        from solvor.cg import _solve_master_lp
+
+        x_vals, duals, obj = _solve_master_lp([], [1, 2, 3], 1e-9)
+        assert x_vals == []
+        assert len(duals) == 3
+        assert obj == float("inf")
