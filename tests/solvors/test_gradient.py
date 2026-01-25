@@ -446,6 +446,7 @@ class TestLearningRateSchedules:
 
     def test_adam_step_schedule_convergence(self):
         """Test that step schedule actually applies decay at 50% and 75%."""
+
         def grad(x):
             return [2 * x[0], 2 * x[1]]
 
