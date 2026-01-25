@@ -12,6 +12,6 @@ result = solve_bp(
 print(f"Status: {result.status}")
 print(f"Rolls needed: {int(result.objective)}")
 print(f"Nodes explored: {result.iterations}")
-print(f"Patterns used:")
+print("Patterns used:")
 for pattern, count in sorted(result.solution.items()):
     print(f"  {pattern}: {count} times")
