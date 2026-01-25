@@ -3,7 +3,6 @@
 import pytest
 
 from solvor.cg import solve_cg
-from solvor.types import Status
 
 
 class TestCuttingStock:
@@ -279,6 +278,7 @@ class TestProgress:
 
     def test_early_stop(self):
         """Progress callback can stop early."""
+
         def on_progress(p):
             return True  # Stop immediately
 
@@ -321,6 +321,7 @@ class TestProgress:
 
     def test_custom_early_stop(self):
         """Progress callback can stop custom mode early."""
+
         def on_progress(p):
             return True  # Stop immediately
 
