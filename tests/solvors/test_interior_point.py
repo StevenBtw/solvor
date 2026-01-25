@@ -1,7 +1,6 @@
 """Tests for the interior point (linear programming) solver."""
 
 from solvor.interior_point import solve_lp_interior
-from solvor.types import Status
 
 
 class TestBasicLP:
