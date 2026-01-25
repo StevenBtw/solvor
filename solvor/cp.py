@@ -263,9 +263,7 @@ class Model:
         else:
             raise ValueError(f"Unknown solver: {solver}. Use 'auto', 'dfs', or 'sat'.")
 
-    def _solve_dfs(
-        self, *, hints: dict[str, int] | None = None, solution_limit: int = 1, **kwargs
-    ):
+    def _solve_dfs(self, *, hints: dict[str, int] | None = None, solution_limit: int = 1, **kwargs):
         """DFS backtracking solver with constraint propagation.
 
         Uses arc consistency and MRV heuristic for fast constraint satisfaction.

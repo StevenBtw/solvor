@@ -135,9 +135,7 @@ class SATEncoder:
         flatten(expr)
         return terms, const
 
-    def _encode_ne_expr(
-        self, left: Any, right: Any, is_ne: bool
-    ) -> None:
+    def _encode_ne_expr(self, left: Any, right: Any, is_ne: bool) -> None:
         """Encode (left_expr != right_expr) or (left_expr == right_expr).
 
         Handles linear expressions like (x + c1) != (y + c2).
@@ -382,9 +380,7 @@ class SATEncoder:
                             if tj in t[j].bool_vars:
                                 self._clauses.append([-var.bool_vars[j], -t[i].bool_vars[ti], -t[j].bool_vars[tj]])
 
-    def _encode_no_overlap(
-        self, starts: tuple["IntVar", ...], durations: tuple[int, ...]
-    ) -> None:
+    def _encode_no_overlap(self, starts: tuple["IntVar", ...], durations: tuple[int, ...]) -> None:
         """Encode no-overlap constraint: intervals don't overlap."""
         n = len(starts)
         for i in range(n):
@@ -437,9 +433,7 @@ class SATEncoder:
             if len(active_lits) <= 10:
                 self._encode_capacity_constraint(active_lits, active_demands, capacity)
 
-    def _encode_capacity_constraint(
-        self, lits: list[int], demands: list[int], capacity: int
-    ) -> None:
+    def _encode_capacity_constraint(self, lits: list[int], demands: list[int], capacity: int) -> None:
         """Encode sum constraint: if all lits true, demands sum must <= capacity."""
         n = len(lits)
         for size in range(1, n + 1):
