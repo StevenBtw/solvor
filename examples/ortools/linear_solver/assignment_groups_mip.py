@@ -35,6 +35,7 @@ algorithm for each 6-worker assignment. Much faster than general MILP.
 """Solve assignment problem for given group of workers."""
 # [START import]
 from solvor import solve_hungarian
+
 # [END import]
 
 
@@ -91,7 +92,7 @@ def main():
     # For each, solve 6×6 assignment with Hungarian algorithm
     print("Solving with solvOR Hungarian algorithm (enumeration)")
 
-    best_cost = float('inf')
+    best_cost = float("inf")
     best_assignment = None
     best_workers = None
     # [END solver]
@@ -121,10 +122,7 @@ def main():
         for i, worker in enumerate(best_workers):
             task = best_assignment[i]
             if task != -1:
-                print(
-                    f"Worker {worker} assigned to task {task}."
-                    + f" Cost: {costs[worker][task]}"
-                )
+                print(f"Worker {worker} assigned to task {task}." + f" Cost: {costs[worker][task]}")
     else:
         print("No solution found.")
     # [END print_solution]

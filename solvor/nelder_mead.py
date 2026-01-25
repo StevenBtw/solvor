@@ -152,8 +152,14 @@ def nelder_mead(
                     # Shrink toward best
                     _shrink(simplex, values, sigma, evaluate)
 
-        if report_progress(on_progress, progress_interval, iteration,
-                          evaluate.to_user(values[0]), evaluate.to_user(values[0]), evaluate.evals):
+        if report_progress(
+            on_progress,
+            progress_interval,
+            iteration,
+            evaluate.to_user(values[0]),
+            evaluate.to_user(values[0]),
+            evaluate.evals,
+        ):
             return Result(simplex[0], evaluate.to_user(values[0]), iteration, evaluate.evals, Status.FEASIBLE)
 
     # Find best vertex

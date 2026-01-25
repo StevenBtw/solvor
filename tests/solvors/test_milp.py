@@ -222,8 +222,7 @@ class TestLNSImprovement:
         c = values
 
         # With LNS
-        result = solve_milp(c, A, b, list(range(n)), minimize=False,
-                           lns_iterations=20, seed=42, max_nodes=0)
+        result = solve_milp(c, A, b, list(range(n)), minimize=False, lns_iterations=20, seed=42, max_nodes=0)
         assert result.ok
         assert result.objective >= 80  # Should find good solution
 
@@ -237,22 +236,18 @@ class TestLNSImprovement:
         A.extend([[1 if j == i else 0 for j in range(n)] for i in range(n)])  # x_i <= 1
         b = [-2] + [1] * n
 
-        result = solve_milp(costs, A, b, list(range(n)), minimize=True,
-                           lns_iterations=10, seed=42, max_nodes=0)
+        result = solve_milp(costs, A, b, list(range(n)), minimize=True, lns_iterations=10, seed=42, max_nodes=0)
         assert result.ok
         assert result.objective <= 5  # Should find 3+2=5
 
     def test_lns_seed_reproducibility(self):
         """Same seed produces same result."""
         c = [10, 20, 30, 15, 25]
-        A = [[-1, -1, -1, -1, -1], [1, 0, 0, 0, 0], [0, 1, 0, 0, 0],
-             [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1]]
+        A = [[-1, -1, -1, -1, -1], [1, 0, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1]]
         b = [-2, 1, 1, 1, 1, 1]
 
-        result1 = solve_milp(c, A, b, [0, 1, 2, 3, 4], minimize=False,
-                            lns_iterations=10, seed=123, max_nodes=0)
-        result2 = solve_milp(c, A, b, [0, 1, 2, 3, 4], minimize=False,
-                            lns_iterations=10, seed=123, max_nodes=0)
+        result1 = solve_milp(c, A, b, [0, 1, 2, 3, 4], minimize=False, lns_iterations=10, seed=123, max_nodes=0)
+        result2 = solve_milp(c, A, b, [0, 1, 2, 3, 4], minimize=False, lns_iterations=10, seed=123, max_nodes=0)
         assert result1.objective == result2.objective
 
     def test_lns_destroy_fraction(self):
@@ -262,8 +257,9 @@ class TestLNSImprovement:
         b = [-2, 1, 1, 1, 1]
 
         for frac in [0.2, 0.5, 0.8]:
-            result = solve_milp(c, A, b, [0, 1, 2, 3], minimize=False,
-                               lns_iterations=5, lns_destroy_frac=frac, seed=42, max_nodes=0)
+            result = solve_milp(
+                c, A, b, [0, 1, 2, 3], minimize=False, lns_iterations=5, lns_destroy_frac=frac, seed=42, max_nodes=0
+            )
             assert result.ok
 
 
@@ -278,7 +274,7 @@ class TestBinaryDetection:
             A=[[1, 0], [0, 1]],  # x <= 1, y <= 1
             b=[1, 1],
             integers=[0, 1],
-            minimize=False
+            minimize=False,
         )
         assert result.ok
         assert abs(result.objective - 2.0) < 1e-6
@@ -342,8 +338,7 @@ class TestRoundingHeuristics:
         # With heuristics off and no B&B, might not find solution
         # Could be infeasible or feasible depending on LP relaxation
         # Just verify it runs without error
-        solve_milp(c, A, b, [0, 1, 2], minimize=False,
-                   heuristics=False, max_nodes=0)
+        solve_milp(c, A, b, [0, 1, 2], minimize=False, heuristics=False, max_nodes=0)
 
 
 class TestSubMIP:
@@ -353,12 +348,12 @@ class TestSubMIP:
         """Sub-MIP optimizes over unfixed variables."""
         # Use LNS which calls sub-MIP internally
         c = [5, 10, 15, 20, 25]
-        A = [[2, 3, 4, 5, 6], [1, 0, 0, 0, 0], [0, 1, 0, 0, 0],
-             [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1]]
+        A = [[2, 3, 4, 5, 6], [1, 0, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1]]
         b = [12, 1, 1, 1, 1, 1]
 
-        result = solve_milp(c, A, b, [0, 1, 2, 3, 4], minimize=False,
-                           lns_iterations=10, lns_destroy_frac=0.6, seed=42, max_nodes=0)
+        result = solve_milp(
+            c, A, b, [0, 1, 2, 3, 4], minimize=False, lns_iterations=10, lns_destroy_frac=0.6, seed=42, max_nodes=0
+        )
         assert result.ok
         # Should find good solution
         assert result.objective >= 35
@@ -401,8 +396,7 @@ class TestCoverageGaps:
         A.extend([[1 if j == i else 0 for j in range(n)] for i in range(n)])
         b = [10] + [1] * n
 
-        result = solve_milp(c, A, b, list(range(n)), minimize=False,
-                           lns_iterations=15, seed=42, max_nodes=0)
+        result = solve_milp(c, A, b, list(range(n)), minimize=False, lns_iterations=15, seed=42, max_nodes=0)
         assert result.ok
         assert result.objective >= 25
 
@@ -436,8 +430,7 @@ class TestCoverageGaps:
         A = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [-1, -1, -1]]
         b = [2, 2, 2, -3]  # Each var <= 2, sum >= 3
 
-        result = solve_milp(c, A, b, [0, 1, 2], minimize=True,
-                           solution_limit=2, max_nodes=500, heuristics=False)
+        result = solve_milp(c, A, b, [0, 1, 2], minimize=True, solution_limit=2, max_nodes=500, heuristics=False)
         assert result.ok
         if result.solutions:
             assert len(result.solutions) <= 2
@@ -531,8 +524,9 @@ class TestCoverageGaps:
         A.extend([[1 if j == i else 0 for j in range(5)] for i in range(5)])
         b = [12] + [1] * 5
 
-        result = solve_milp(c, A, b, [0, 1, 2, 3, 4], minimize=False,
-                           lns_iterations=15, lns_destroy_frac=0.6, seed=123, max_nodes=0)
+        result = solve_milp(
+            c, A, b, [0, 1, 2, 3, 4], minimize=False, lns_iterations=15, lns_destroy_frac=0.6, seed=123, max_nodes=0
+        )
         assert result.ok
         assert result.objective >= 30
 
@@ -546,8 +540,9 @@ class TestCoverageGaps:
         A.extend([[1 if j == i else 0 for j in range(n)] for i in range(n)])
         b = [15] + [1] * n
 
-        result = solve_milp(c, A, b, list(range(n)), minimize=False,
-                           lns_iterations=50, lns_destroy_frac=0.5, seed=777, max_nodes=0)
+        result = solve_milp(
+            c, A, b, list(range(n)), minimize=False, lns_iterations=50, lns_destroy_frac=0.5, seed=777, max_nodes=0
+        )
         assert result.ok
 
     def test_direct_solution_pool_hit_limit(self):
@@ -557,8 +552,7 @@ class TestCoverageGaps:
         A = [[1, 0], [0, 1]]  # x <= 1, y <= 1
         b = [1, 1]
 
-        result = solve_milp(c, A, b, [0, 1], minimize=False,
-                           solution_limit=2, heuristics=False, max_nodes=100)
+        result = solve_milp(c, A, b, [0, 1], minimize=False, solution_limit=2, heuristics=False, max_nodes=100)
         assert result.ok
         # Should have collected solutions during B&B
         if result.solutions:
@@ -570,8 +564,7 @@ class TestCoverageGaps:
         A = [[1, 0], [0, 1]]
         b = [1, 1]
 
-        result = solve_milp(c, A, b, [0, 1], minimize=True,
-                           solution_limit=10, heuristics=False, max_nodes=1000)
+        result = solve_milp(c, A, b, [0, 1], minimize=True, solution_limit=10, heuristics=False, max_nodes=1000)
         assert result.ok
         # Tree should be exhausted with all 4 solutions found
         if result.solutions:
@@ -585,8 +578,7 @@ class TestCoverageGaps:
         b = [-2, 1, 1, 1]
 
         # Warm start with optimal solution should prune all nodes
-        result = solve_milp(c, A, b, [0, 1, 2], minimize=True,
-                           warm_start=[1.0, 1.0, 0.0])
+        result = solve_milp(c, A, b, [0, 1, 2], minimize=True, warm_start=[1.0, 1.0, 0.0])
         assert result.ok
         assert abs(result.objective - 5.0) < 1e-6
 
@@ -597,8 +589,7 @@ class TestCoverageGaps:
         b = [-3, 1, 1, 1]
 
         # Optimal warm start - subsequent LP bounds should prune
-        result = solve_milp(c, A, b, [0, 1, 2], minimize=True,
-                           warm_start=[1.0, 1.0, 1.0])
+        result = solve_milp(c, A, b, [0, 1, 2], minimize=True, warm_start=[1.0, 1.0, 1.0])
         assert result.ok
         assert abs(result.objective - 3.0) < 1e-6
 
@@ -616,8 +607,7 @@ class TestCoverageGaps:
         """Rounding tries both directions before giving up (lines 376-382)."""
         # Very tight constraints where both round directions might fail
         c = [5, 5, 5, 5]
-        A = [[1, 1, 1, 1], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1],
-             [-1, -1, 0, 0]]  # x0 + x1 >= 1
+        A = [[1, 1, 1, 1], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [-1, -1, 0, 0]]  # x0 + x1 >= 1
         b = [2, 1, 1, 1, 1, -1]
 
         result = solve_milp(c, A, b, [0, 1, 2, 3], minimize=False, max_nodes=50)
@@ -664,8 +654,7 @@ class TestEdgeCaseCoverage:
         A.extend([[1 if j == i else 0 for j in range(n)] for i in range(n)])
         b = [15] + [1] * n
 
-        result = solve_milp(c, A, b, list(range(n)), minimize=False,
-                           lns_iterations=30, seed=42, max_nodes=0)
+        result = solve_milp(c, A, b, list(range(n)), minimize=False, lns_iterations=30, seed=42, max_nodes=0)
         assert result.ok
         assert result.objective >= 50
 
@@ -725,12 +714,12 @@ class TestEdgeCaseCoverage:
         """Sub-MIP uses internal branching."""
         # Problem that requires sub-MIP B&B
         c = [10, 20, 30, 40, 50]
-        A = [[2, 3, 4, 5, 6], [1, 0, 0, 0, 0], [0, 1, 0, 0, 0],
-             [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1]]
+        A = [[2, 3, 4, 5, 6], [1, 0, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1]]
         b = [15, 1, 1, 1, 1, 1]
 
-        result = solve_milp(c, A, b, [0, 1, 2, 3, 4], minimize=False,
-                           lns_iterations=20, lns_destroy_frac=0.8, seed=42, max_nodes=0)
+        result = solve_milp(
+            c, A, b, [0, 1, 2, 3, 4], minimize=False, lns_iterations=20, lns_destroy_frac=0.8, seed=42, max_nodes=0
+        )
         assert result.ok
 
     def test_binary_detection_partial(self):

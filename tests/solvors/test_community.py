@@ -23,8 +23,10 @@ class TestLouvainBasic:
     def test_two_disconnected_pairs(self):
         """Two disconnected pairs should form two communities."""
         graph = {
-            "A": ["B"], "B": ["A"],
-            "C": ["D"], "D": ["C"],
+            "A": ["B"],
+            "B": ["A"],
+            "C": ["D"],
+            "D": ["C"],
         }
         result = louvain(graph.keys(), lambda n: graph.get(n, []))
         assert len(result.solution) == 2

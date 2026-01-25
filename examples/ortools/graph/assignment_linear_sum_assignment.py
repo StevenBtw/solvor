@@ -54,10 +54,7 @@ def main():
     if result.objective is not None:
         print(f"Total cost = {int(result.objective)}\n")
         for worker, task in enumerate(result.solution):
-            print(
-                f"Worker {worker} assigned to task {task}."
-                + f"  Cost = {costs[worker][task]}"
-            )
+            print(f"Worker {worker} assigned to task {task}." + f"  Cost = {costs[worker][task]}")
     else:
         print("No assignment is possible.")
     # [END print_solution]

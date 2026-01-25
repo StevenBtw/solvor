@@ -118,6 +118,7 @@ class TestBranching:
 class TestCustomPricing:
     def test_simple_custom(self):
         """Basic custom pricing - identity columns only."""
+
         def pricing(duals):
             return (None, 0.0)
 
@@ -245,6 +246,7 @@ class TestProgress:
 
     def test_early_stop(self):
         """Early stop via progress callback."""
+
         def callback(progress):
             return True  # Stop immediately
 
@@ -291,7 +293,7 @@ class TestCustomEdgeCases:
 class TestInternalFunctions:
     def test_greedy_knapsack_fallback(self):
         """Test greedy knapsack is used as fallback."""
-        from solvor.bp import _greedy_knapsack
+        from solvor.utils.pricing import greedy_knapsack
 
         # Simple greedy test
         sizes = [3.0, 4.0, 5.0]
@@ -299,40 +301,40 @@ class TestInternalFunctions:
         values = [3.0, 4.0, 5.0]
         max_copies = [2, 2, 2]
 
-        pattern, val = _greedy_knapsack(sizes, capacity, values, max_copies)
+        pattern, val = greedy_knapsack(sizes, capacity, values, max_copies)
         assert sum(pattern[i] * sizes[i] for i in range(len(sizes))) <= capacity
         assert val > 0
 
     def test_greedy_with_zero_values(self):
         """Greedy handles zero/negative values."""
-        from solvor.bp import _greedy_knapsack
+        from solvor.utils.pricing import greedy_knapsack
 
         sizes = [3.0, 4.0]
         capacity = 10.0
         values = [0.0, -1.0]
         max_copies = [2, 2]
 
-        pattern, val = _greedy_knapsack(sizes, capacity, values, max_copies)
+        pattern, val = greedy_knapsack(sizes, capacity, values, max_copies)
         assert pattern == (0, 0)
         assert val == 0.0
 
     def test_knapsack_empty(self):
         """Knapsack with no items."""
-        from solvor.bp import _knapsack_pricing
+        from solvor.utils.pricing import knapsack_pricing
 
-        pattern, val = _knapsack_pricing([], 100.0, [], 1e-9)
+        pattern, val = knapsack_pricing([], 100.0, [], 1e-9)
         assert pattern == ()
         assert val == 0.0
 
     def test_knapsack_zero_values(self):
         """Knapsack with zero dual values."""
-        from solvor.bp import _knapsack_pricing
+        from solvor.utils.pricing import knapsack_pricing
 
         sizes = [10.0, 20.0]
         capacity = 100.0
         values = [0.0, 0.0]
 
-        pattern, val = _knapsack_pricing(sizes, capacity, values, 1e-9)
+        pattern, val = knapsack_pricing(sizes, capacity, values, 1e-9)
         assert val == 0.0
 
     def test_bounded_master_empty(self):

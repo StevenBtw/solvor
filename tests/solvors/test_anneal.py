@@ -242,5 +242,3 @@ class TestProgressCallback:
         assert p.iteration == 50
         assert isinstance(p.objective, float)
         assert p.evaluations > 0
-
-

@@ -23,11 +23,11 @@ _DEBUG = bool(environ.get("DEBUG"))
 class Status(IntEnum):
     """Solver outcome status."""
 
-    OPTIMAL = auto()    # Proven optimal (exact solvers)
-    FEASIBLE = auto()   # Feasible but not proven optimal (heuristics)
-    INFEASIBLE = auto() # No feasible solution exists
+    OPTIMAL = auto()  # Proven optimal (exact solvers)
+    FEASIBLE = auto()  # Feasible but not proven optimal (heuristics)
+    INFEASIBLE = auto()  # No feasible solution exists
     UNBOUNDED = auto()  # Objective can improve infinitely
-    MAX_ITER = auto()   # Iteration limit reached
+    MAX_ITER = auto()  # Iteration limit reached
 
 
 @dataclass(frozen=True, slots=True)
@@ -65,6 +65,10 @@ class Result[T]:
                 msg += f" - {self.error}"
             print(msg)
         return self
+
+    def __repr__(self) -> str:
+        """Concise representation for debugging."""
+        return f"Result({self.status.name}, obj={self.objective:.6g}, iter={self.iterations})"
 
 
 @dataclass(frozen=True, slots=True)

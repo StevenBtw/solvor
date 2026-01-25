@@ -191,8 +191,14 @@ def bayesian_opt(
         if y_new < best_obj:
             best_solution, best_obj = top_candidate[:], y_new
 
-        if report_progress(on_progress, progress_interval, iteration + 1,
-                          evaluate.to_user(best_obj), evaluate.to_user(best_obj), evaluate.evals):
+        if report_progress(
+            on_progress,
+            progress_interval,
+            iteration + 1,
+            evaluate.to_user(best_obj),
+            evaluate.to_user(best_obj),
+            evaluate.evals,
+        ):
             return Result(best_solution, evaluate.to_user(best_obj), iteration + 1, evaluate.evals, Status.FEASIBLE)
 
     final_obj = evaluate.to_user(best_obj)

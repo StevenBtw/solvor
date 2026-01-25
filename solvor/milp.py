@@ -103,12 +103,10 @@ def solve_milp(
     total_iters += root_result.iterations
 
     if root_result.status == LPStatus.INFEASIBLE:
-        return Result(None, float("inf") if minimize else float("-inf"),
-                     0, total_iters, Status.INFEASIBLE)
+        return Result(None, float("inf") if minimize else float("-inf"), 0, total_iters, Status.INFEASIBLE)
 
     if root_result.status == LPStatus.UNBOUNDED:
-        return Result(None, float("-inf") if minimize else float("inf"),
-                     0, total_iters, Status.UNBOUNDED)
+        return Result(None, float("-inf") if minimize else float("inf"), 0, total_iters, Status.UNBOUNDED)
 
     best_solution, best_obj = None, float("inf") if minimize else float("-inf")
     sign = 1 if minimize else -1
@@ -148,8 +146,7 @@ def solve_milp(
     if heuristics and looks_binary and lns_iterations > 0 and best_solution is not None:
         rng = Random(seed)
         improved, iters = _lns_improve(
-            best_solution, c, A, b, int_set, minimize, eps, max_iter,
-            lns_iterations, lns_destroy_frac, rng
+            best_solution, c, A, b, int_set, minimize, eps, max_iter, lns_iterations, lns_destroy_frac, rng
         )
         total_iters += iters
         if improved is not None:
@@ -194,10 +191,14 @@ def solve_milp(
             if solution_limit > 1 and sol not in all_solutions:
                 all_solutions.append(sol)
                 if len(all_solutions) >= solution_limit:
-                    return Result(best_solution or sol,
-                                 best_obj if best_solution else sol_obj,
-                                 nodes_explored, total_iters, Status.FEASIBLE,
-                                 solutions=tuple(all_solutions))
+                    return Result(
+                        best_solution or sol,
+                        best_obj if best_solution else sol_obj,
+                        nodes_explored,
+                        total_iters,
+                        Status.FEASIBLE,
+                        solutions=tuple(all_solutions),
+                    )
 
             if sign * sol_obj < sign * best_obj:
                 best_solution, best_obj = sol, sol_obj
@@ -212,24 +213,22 @@ def solve_milp(
 
         lower_left, upper_left = list(node.lower), list(node.upper)
         upper_left[frac_var] = floor(val)
-        heappush(tree, (child_bound, counter,
-                       Node(child_bound, tuple(lower_left), tuple(upper_left), node.depth + 1)))
+        heappush(tree, (child_bound, counter, Node(child_bound, tuple(lower_left), tuple(upper_left), node.depth + 1)))
         counter += 1
 
         lower_right, upper_right = list(node.lower), list(node.upper)
         lower_right[frac_var] = ceil(val)
-        heappush(tree, (child_bound, counter,
-                       Node(child_bound, tuple(lower_right), tuple(upper_right), node.depth + 1)))
+        heappush(
+            tree, (child_bound, counter, Node(child_bound, tuple(lower_right), tuple(upper_right), node.depth + 1))
+        )
         counter += 1
 
     if best_solution is None:
-        return Result(None, float("inf") if minimize else float("-inf"),
-                     nodes_explored, total_iters, Status.INFEASIBLE)
+        return Result(None, float("inf") if minimize else float("-inf"), nodes_explored, total_iters, Status.INFEASIBLE)
 
     status = Status.OPTIMAL if not tree else Status.FEASIBLE
     if solution_limit > 1 and all_solutions:
-        return Result(best_solution, best_obj, nodes_explored, total_iters, status,
-                     solutions=tuple(all_solutions))
+        return Result(best_solution, best_obj, nodes_explored, total_iters, status, solutions=tuple(all_solutions))
     return Result(best_solution, best_obj, nodes_explored, total_iters, status)
 
 
@@ -242,8 +241,7 @@ def _solve_node(c, A, b, lower, upper, minimize, eps, max_iter):
     for j in range(n):
         lo, hi = lower[j], upper[j]
         if hi < lo - eps:
-            return Result(None, float("inf") if minimize else float("-inf"),
-                         0, 0, LPStatus.INFEASIBLE)
+            return Result(None, float("inf") if minimize else float("-inf"), 0, 0, LPStatus.INFEASIBLE)
         if hi - lo < eps:
             fixed[j] = lo
         else:
@@ -255,8 +253,7 @@ def _solve_node(c, A, b, lower, upper, minimize, eps, max_iter):
         for i, row in enumerate(A):
             lhs = sum(row[j] * sol[j] for j in range(n))
             if lhs > b[i] + eps:
-                return Result(None, float("inf") if minimize else float("-inf"),
-                             0, 0, LPStatus.INFEASIBLE)
+                return Result(None, float("inf") if minimize else float("-inf"), 0, 0, LPStatus.INFEASIBLE)
         return Result(tuple(sol), obj, 0, 0, LPStatus.OPTIMAL)
 
     # Build reduced problem
@@ -298,8 +295,7 @@ def _solve_node(c, A, b, lower, upper, minimize, eps, max_iter):
     for j_new, j_old in enumerate(free_vars):
         full_sol[j_old] = result.solution[j_new]
 
-    return Result(tuple(full_sol), result.objective + fixed_obj,
-                 result.iterations, result.iterations, result.status)
+    return Result(tuple(full_sol), result.objective + fixed_obj, result.iterations, result.iterations, result.status)
 
 
 def _most_fractional(solution, int_set, eps):
@@ -354,8 +350,9 @@ def _round_binary(lp_solution, int_set, c, A, b, minimize, eps):
     sign = 1 if minimize else -1
 
     # Round fractional vars, preferring low-impact first
-    candidates = [(sign * c[j], lp_solution[j], j) for j in int_set
-                  if abs(lp_solution[j] - round(lp_solution[j])) > eps]
+    candidates = [
+        (sign * c[j], lp_solution[j], j) for j in int_set if abs(lp_solution[j] - round(lp_solution[j])) > eps
+    ]
     candidates.sort()
 
     for _, val, j in candidates:
@@ -385,8 +382,9 @@ def _round_binary(lp_solution, int_set, c, A, b, minimize, eps):
     improved = True
     while improved:
         improved = False
-        flip_candidates = [(sign * c[j], j) for j in int_set
-                          if (minimize and sol[j] > 0.5) or (not minimize and sol[j] < 0.5)]
+        flip_candidates = [
+            (sign * c[j], j) for j in int_set if (minimize and sol[j] > 0.5) or (not minimize and sol[j] < 0.5)
+        ]
         flip_candidates.sort()
 
         for _, j in flip_candidates:
@@ -441,8 +439,13 @@ def _lns_improve(solution, c, A, b, int_set, minimize, eps, max_iter, iterations
         return candidate if candidate else sol
 
     result = _lns(
-        solution, objective_fn, destroy, repair,
-        minimize=minimize, max_iter=iterations, max_no_improve=iterations,
+        solution,
+        objective_fn,
+        destroy,
+        repair,
+        minimize=minimize,
+        max_iter=iterations,
+        max_no_improve=iterations,
         seed=rng.randint(0, 2**31),
     )
     return result.solution, result.evaluations
