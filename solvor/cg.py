@@ -63,7 +63,7 @@ from math import ceil
 
 from solvor.types import ProgressCallback, Result, Status
 from solvor.utils.helpers import report_progress
-from solvor.utils.pricing import greedy_knapsack, knapsack_pricing, simplex_phase
+from solvor.utils.pricing import knapsack_pricing, simplex_phase
 from solvor.utils.validate import check_non_negative, check_positive, check_sequence_lengths
 
 __all__ = ["solve_cg"]
