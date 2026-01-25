@@ -118,6 +118,7 @@ class TestBranching:
 class TestCustomPricing:
     def test_simple_custom(self):
         """Basic custom pricing - identity columns only."""
+
         def pricing(duals):
             return (None, 0.0)
 
@@ -245,6 +246,7 @@ class TestProgress:
 
     def test_early_stop(self):
         """Early stop via progress callback."""
+
         def callback(progress):
             return True  # Stop immediately
 
